@@ -1,0 +1,4 @@
+torch>=2.0
+numpy
+tokenizers>=0.15
+requests

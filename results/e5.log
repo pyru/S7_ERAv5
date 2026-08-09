@@ -1,0 +1,15 @@
+=== arithmetic ===
+  dense_untied          2,122,317,824 params    33.96 GB
+  dense_tied            1,061,158,912 params    16.98 GB
+  factorized            1,132,412,928 params    18.12 GB
+  kronecker             1,127,481,344 params    18.04 GB
+  spectral_headfree        66,322,432 params     1.06 GB
+=== 1M vocab, real forward+backward ===
+C:\Ramesh_data\2026_Ramesh\TSAI_ERA v5\S#7_ERAv5\spectral\experiments\e5_vocab_scaling.py:103: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\torch\csrc\autograd\generated\python_variable_methods.cpp:837.)
+  "loss_ran": round(float(loss), 4),
+  V=   32,000  token-interface params=  524,289 (head=1)  1.187s/step  dense would be 16,384,000 (31.2x)
+  V=  131,072  token-interface params=  524,289 (head=1)  1.172s/step  dense would be 67,108,864 (128.0x)
+  V=1,000,000  token-interface params=  524,289 (head=1)  1.202s/step  dense would be 512,000,000 (976.6x)
+=== measured output-path cost ===
+wrote results/e5_vocab_scaling.json

@@ -1,0 +1,23 @@
+words=120000 bpe32k=32000
+  E2 kron_p32         [1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+  E2 kron_p64         [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.7951, 0.0]
+  E2 spec_dft_q32     [1.0, 1.0, 1.0, 0.9943, 0.0, 0.0, 0.0, 0.0]
+  E2 spec_dft_2048    [1.0, 1.0, 1.0, 0.9943, 0.0, 0.0, 0.0, 0.0]
+  E2 spec_vern3_q32   [1.0, 1.0, 0.9499, 0.429, 0.0012, 0.001, 0.0, 0.0]
+  E2 spec_vern3_q64   [1.0, 1.0, 1.0, 1.0, 1.0, 0.9822, 0.8715, 0.125]
+  E3a kron_p32         [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+  E3a kron_p64         [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+  E3a spec_dft_q32     [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+  E3a spec_dft_2048    [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.9996, 0.9895]
+  E3a spec_vern3_q32   [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.9999]
+  E3a spec_vern3_q64   [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+Traceback (most recent call last):
+  File "C:\Ramesh_data\2026_Ramesh\TSAI_ERA v5\S#7_ERAv5\spectral\experiments\e2_invertibility.py", line 181, in <module>
+    main()
+  File "C:\Ramesh_data\2026_Ramesh\TSAI_ERA v5\S#7_ERAv5\spectral\experiments\e2_invertibility.py", line 173, in main
+    "e3b_rank_bpe32k": e3_rank(bpe),
+                       ^^^^^^^^^^^^
+  File "C:\Ramesh_data\2026_Ramesh\TSAI_ERA v5\S#7_ERAv5\spectral\experiments\e2_invertibility.py", line 145, in e3_rank
+    evals, evecs = torch.linalg.eigh(cov)
+                   ^^^^^^^^^^^^^^^^^^^^^^
+torch._C._LinAlgError: linalg.eigh: The algorithm failed to converge because the input matrix is ill-conditioned or has too many repeated eigenvalues (error code: 59930930).

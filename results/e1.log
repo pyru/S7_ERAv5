@@ -1,0 +1,34 @@
+
+=== bpe_8192 ===
+  kron_p32         dim=  8192 collided=     0 ( 0.00%) decode=1.0000
+  kron_p48         dim= 12288 collided=     0 ( 0.00%) decode=1.0000
+  kron_p64         dim= 16384 collided=     0 ( 0.00%) decode=1.0000
+  spec_dft_q32     dim=  8192 collided=     0 ( 0.00%) decode=0.9999
+  spec_vern3_q32   dim=  8192 collided=     0 ( 0.00%) decode=0.9999
+  spec_vern3_q64   dim= 16384 collided=     0 ( 0.00%) decode=0.9999
+
+=== bpe_32000 ===
+  kron_p32         dim=  8192 collided=     0 ( 0.00%) decode=1.0000
+  kron_p48         dim= 12288 collided=     0 ( 0.00%) decode=1.0000
+  kron_p64         dim= 16384 collided=     0 ( 0.00%) decode=1.0000
+  spec_dft_q32     dim=  8192 collided=     0 ( 0.00%) decode=1.0000
+  spec_vern3_q32   dim=  8192 collided=     0 ( 0.00%) decode=1.0000
+  spec_vern3_q64   dim= 16384 collided=     0 ( 0.00%) decode=1.0000
+
+=== bpe_131072 ===
+  kron_p32         dim=  8192 collided=     0 ( 0.00%) decode=0.9999
+  kron_p48         dim= 12288 collided=     0 ( 0.00%) decode=1.0000
+  kron_p64         dim= 16384 collided=     0 ( 0.00%) decode=1.0000
+  spec_dft_q32     dim=  8192 collided=     0 ( 0.00%) decode=0.9999
+  spec_vern3_q32   dim=  8192 collided=     0 ( 0.00%) decode=0.9997
+  spec_vern3_q64   dim= 16384 collided=     0 ( 0.00%) decode=1.0000
+
+=== words ===
+  kron_p32         dim=  8192 collided= 16673 ( 6.99%) decode=0.8110
+  kron_p48         dim= 12288 collided=  1218 ( 0.51%) decode=0.9735
+  kron_p64         dim= 16384 collided=    48 ( 0.02%) decode=0.9968
+  spec_dft_q32     dim=  8192 collided=     0 ( 0.00%) decode=0.8098
+  spec_vern3_q32   dim=  8192 collided=     0 ( 0.00%) decode=0.7086
+  spec_vern3_q64   dim= 16384 collided=     0 ( 0.00%) decode=0.9962
+
+wrote results/e1_collisions.json

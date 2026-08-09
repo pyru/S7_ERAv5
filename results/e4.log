@@ -1,0 +1,64 @@
+building stream...
+stream 4,200,533 tokens, vocab 32000
+
+=== A_dense ===
+  [A_dense] step     0 bpb=4.1142 acc=0.0000 (3s)
+  [A_dense] step   125 bpb=2.1470 acc=0.1071 (124s)
+  [A_dense] step   250 bpb=1.7029 acc=0.1029 (237s)
+  [A_dense] step   375 bpb=1.6077 acc=0.1903 (351s)
+  [A_dense] step   500 bpb=1.5472 acc=0.2095 (462s)
+  [A_dense] step   625 bpb=1.5105 acc=0.2350 (579s)
+  [A_dense] step   750 bpb=1.4852 acc=0.2466 (706s)
+  [A_dense] step   875 bpb=1.4762 acc=0.2489 (826s)
+  [A_dense] step   999 bpb=1.4748 acc=0.2492 (942s)
+  params: input=8,192,000 head=8,192,000 trunk=3,150,336 total=19,534,336
+
+=== B_kron8192_head ===
+  [B_kron8192_head] step     0 bpb=4.1500 acc=0.0000 (4s)
+  [B_kron8192_head] step   125 bpb=2.2337 acc=0.1250 (172s)
+  [B_kron8192_head] step   250 bpb=1.6345 acc=0.1950 (311s)
+  [B_kron8192_head] step   375 bpb=1.5299 acc=0.2365 (462s)
+  [B_kron8192_head] step   500 bpb=1.4848 acc=0.2432 (571s)
+  [B_kron8192_head] step   625 bpb=1.4569 acc=0.2537 (683s)
+  [B_kron8192_head] step   750 bpb=1.4385 acc=0.2563 (807s)
+  [B_kron8192_head] step   875 bpb=1.4329 acc=0.2578 (946s)
+  [B_kron8192_head] step   999 bpb=1.4323 acc=0.2580 (1077s)
+  params: input=2,097,152 head=8,192,000 trunk=3,150,336 total=13,439,488
+
+=== C_spec8192_head ===
+  [C_spec8192_head] step     0 bpb=4.1566 acc=0.0000 (4s)
+  [C_spec8192_head] step   125 bpb=2.1751 acc=0.1418 (129s)
+  [C_spec8192_head] step   250 bpb=1.6206 acc=0.2000 (253s)
+  [C_spec8192_head] step   375 bpb=1.5252 acc=0.2251 (384s)
+  [C_spec8192_head] step   500 bpb=1.4862 acc=0.2306 (500s)
+  [C_spec8192_head] step   625 bpb=1.4590 acc=0.2490 (631s)
+  [C_spec8192_head] step   750 bpb=1.4402 acc=0.2591 (757s)
+  [C_spec8192_head] step   875 bpb=1.4341 acc=0.2544 (855s)
+  [C_spec8192_head] step   999 bpb=1.4334 acc=0.2547 (952s)
+  params: input=2,097,152 head=8,192,000 trunk=3,150,336 total=13,439,488
+
+=== D_spec8192_headfree ===
+  [D_spec8192_headfree] step     0 bpb=8.0239 acc=0.0002 (3s)
+  [D_spec8192_headfree] step   125 bpb=2.8948 acc=0.0418 (67s)
+  [D_spec8192_headfree] step   250 bpb=2.7345 acc=0.0591 (143s)
+  [D_spec8192_headfree] step   375 bpb=2.2428 acc=0.1066 (216s)
+  [D_spec8192_headfree] step   500 bpb=2.1738 acc=0.1628 (292s)
+  [D_spec8192_headfree] step   625 bpb=2.1378 acc=0.1561 (1294s)
+  [D_spec8192_headfree] step   750 bpb=2.1042 acc=0.1748 (1395s)
+  [D_spec8192_headfree] step   875 bpb=2.0938 acc=0.1647 (1473s)
+  [D_spec8192_headfree] step   999 bpb=2.0919 acc=0.1745 (1551s)
+  params: input=2,097,152 head=1 trunk=3,150,336 total=5,247,489
+
+=== E_spec2048_headfree ===
+  [E_spec2048_headfree] step     0 bpb=8.8610 acc=0.0002 (1s)
+  [E_spec2048_headfree] step   125 bpb=3.6789 acc=0.0192 (58s)
+  [E_spec2048_headfree] step   250 bpb=3.3570 acc=0.0449 (116s)
+  [E_spec2048_headfree] step   375 bpb=2.8823 acc=0.0934 (172s)
+  [E_spec2048_headfree] step   500 bpb=2.7093 acc=0.0915 (230s)
+  [E_spec2048_headfree] step   625 bpb=2.6287 acc=0.1066 (292s)
+  [E_spec2048_headfree] step   750 bpb=2.5962 acc=0.0991 (355s)
+  [E_spec2048_headfree] step   875 bpb=2.5784 acc=0.0851 (424s)
+  [E_spec2048_headfree] step   999 bpb=2.5735 acc=0.0939 (529s)
+  params: input=524,288 head=1 trunk=3,150,336 total=3,674,625
+
+wrote results/e4_lm.json

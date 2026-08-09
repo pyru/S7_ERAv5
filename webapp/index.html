@@ -1,0 +1,1086 @@
+<title>Spectral Byte Embeddings — Kronecker V2</title>
+
+<style>
+/* ============================================================ tokens ===== */
+:root{
+  color-scheme: light;
+  --ground:#F3F5F8; --surface:#FFFFFF; --surface-2:#E9EDF2; --sunk:#F7F9FB;
+  --ink:#101419; --ink-2:#4B5563; --ink-3:#7B8794;
+  --rule:#DCE2E9; --rule-strong:#C3CCD6;
+  --accent:#2a78d6; --accent-soft:#E7F0FB;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
+  --crit:#e34948; --crit-soft:#FBEAEA;
+  --grid:#E6EBF1;
+  --shadow:0 1px 2px rgba(16,20,25,.05), 0 8px 24px -12px rgba(16,20,25,.16);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --ground:#0D1014; --surface:#151A20; --surface-2:#1C232B; --sunk:#11161B;
+    --ink:#E9EEF3; --ink-2:#A2AEBA; --ink-3:#76838F;
+    --rule:#232B34; --rule-strong:#333D48;
+    --accent:#3987e5; --accent-soft:#152234;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+    --crit:#e66767; --crit-soft:#2A1719;
+    --grid:#1E252D;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#0D1014; --surface:#151A20; --surface-2:#1C232B; --sunk:#11161B;
+  --ink:#E9EEF3; --ink-2:#A2AEBA; --ink-3:#76838F;
+  --rule:#232B34; --rule-strong:#333D48;
+  --accent:#3987e5; --accent-soft:#152234;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+  --crit:#e66767; --crit-soft:#2A1719;
+  --grid:#1E252D;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}
+
+/* ============================================================ base ======= */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  font-size:17px; line-height:1.65;
+  font-feature-settings:"kern" 1, "liga" 1;
+}
+.mono{font-family: ui-monospace, "Cascadia Mono", "SF Mono", SFMono-Regular, Menlo, Consolas, monospace}
+.wrap{max-width:1140px; margin:0 auto; padding:0 24px}
+.prose{max-width:68ch; margin-left:auto; margin-right:auto}
+h1,h2,h3{text-wrap:balance; line-height:1.18; margin:0}
+h1{font-size:clamp(2.1rem,5vw,3.4rem); font-weight:600; letter-spacing:-.015em}
+h2{font-size:clamp(1.45rem,2.6vw,1.95rem); font-weight:600; letter-spacing:-.01em}
+h3{font-size:1.08rem; font-weight:600}
+p{margin:0 0 1.05em}
+a{color:var(--accent)}
+code{
+  font-family: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+  font-size:.87em; background:var(--surface-2); padding:.12em .4em; border-radius:3px;
+}
+pre{
+  font-family: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+  font-size:.82rem; line-height:1.6; background:var(--sunk); color:var(--ink);
+  border:1px solid var(--rule); border-radius:8px; padding:16px 18px;
+  overflow-x:auto; margin:0 0 1.2em;
+}
+pre code{background:none; padding:0; font-size:inherit}
+
+.eyebrow{
+  font-family: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+  font-size:.7rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:600;
+}
+
+/* ============================================================ header ===== */
+header{
+  border-bottom:1px solid var(--rule); background:var(--surface);
+  padding:56px 0 44px;
+}
+/* same measure as .prose, so the title's left edge lines up with the body
+   text of every section below it rather than starting 250px further out */
+.titleblock{display:flex; flex-direction:column; gap:18px; max-width:68ch; margin:0 auto}
+.sub{font-size:1.16rem; color:var(--ink-2); max-width:60ch; margin:0}
+.problems{
+  display:grid; gap:14px; margin-top:8px;
+  grid-template-columns:repeat(auto-fit,minmax(258px,1fr));
+}
+.problem{
+  border:1px solid var(--rule); border-left:2px solid var(--accent);
+  background:var(--sunk); border-radius:0 8px 8px 0; padding:14px 18px;
+}
+.problem .eyebrow{color:var(--accent)}
+.problem p{margin:6px 0 0; font-size:.94rem; color:var(--ink-2); font-style:italic}
+
+/* ============================================================ sections === */
+section{padding:56px 0; border-bottom:1px solid var(--rule)}
+.sechead{display:flex; align-items:baseline; gap:14px; margin-bottom:8px}
+.secnum{
+  font-family: ui-monospace, monospace; font-size:.78rem; font-weight:700;
+  color:var(--accent); letter-spacing:.06em; padding-top:.35em;
+}
+.lede{font-size:1.06rem; color:var(--ink-2); margin-bottom:1.6em}
+.prose h3{margin:2.2em 0 .6em}
+.prose h3:first-child{margin-top:0}
+
+/* ============================================================ panels ==== */
+.panel{
+  background:var(--surface); border:1px solid var(--rule); border-radius:12px;
+  box-shadow:var(--shadow); margin:28px 0; overflow:hidden;
+}
+.panel-head{
+  display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;
+  padding:14px 20px; border-bottom:1px solid var(--rule); background:var(--sunk);
+}
+.panel-title{font-weight:600; font-size:.98rem}
+.panel-body{padding:20px}
+.panel-note{
+  padding:12px 20px; border-top:1px solid var(--rule); background:var(--sunk);
+  font-size:.86rem; color:var(--ink-2);
+}
+
+/* ============================================================ controls == */
+.controls{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+.seg{display:inline-flex; border:1px solid var(--rule-strong); border-radius:7px; overflow:hidden}
+.seg button{
+  font:inherit; font-size:.8rem; font-family:ui-monospace,monospace;
+  background:var(--surface); color:var(--ink-2); border:0; padding:7px 13px; cursor:pointer;
+  border-right:1px solid var(--rule);
+}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent); color:#fff}
+.seg button:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
+input[type="text"]{
+  font:inherit; font-size:1.05rem; padding:9px 13px; min-width:min(340px,70vw);
+  border:1px solid var(--rule-strong); border-radius:7px;
+  background:var(--surface); color:var(--ink);
+}
+input[type="text"]:focus-visible{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent)}
+input[type="range"]{accent-color:var(--accent); width:170px}
+label.ctl{
+  font-family:ui-monospace,monospace; font-size:.76rem; color:var(--ink-2);
+  display:inline-flex; align-items:center; gap:8px;
+}
+.chips{display:flex; flex-wrap:wrap; gap:7px}
+.chip{
+  font-family:ui-monospace,monospace; font-size:.75rem; padding:4px 9px; cursor:pointer;
+  border:1px solid var(--rule-strong); border-radius:20px;
+  background:var(--surface); color:var(--ink-2);
+}
+.chip[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent); color:var(--accent)}
+
+/* ============================================================ dial ====== */
+.dialgrid{display:grid; gap:22px; grid-template-columns:minmax(0,340px) minmax(0,1fr); align-items:start}
+@media(max-width:820px){.dialgrid{grid-template-columns:1fr}}
+.readout{display:flex; flex-direction:column; gap:14px}
+.rline{display:flex; gap:12px; align-items:baseline; flex-wrap:wrap}
+.rlabel{
+  font-family:ui-monospace,monospace; font-size:.7rem; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-3); min-width:9ch;
+}
+.rvalue{font-size:1.22rem; word-break:break-word}
+.rvalue.bad{color:var(--crit)}
+.rvalue.good{color:var(--s3)}
+.badge{
+  font-family:ui-monospace,monospace; font-size:.72rem; padding:3px 9px; border-radius:20px;
+  border:1px solid currentColor; font-weight:600;
+}
+.badge.ok{color:var(--s3)} .badge.bad{color:var(--crit)}
+.bytestrip{display:flex; flex-wrap:wrap; gap:3px; margin-top:2px}
+.byte{
+  font-family:ui-monospace,monospace; font-size:.66rem; padding:2px 4px; border-radius:3px;
+  background:var(--surface-2); color:var(--ink-2); border:1px solid transparent;
+}
+.byte.lap1{background:var(--accent-soft); color:var(--accent); border-color:var(--accent)}
+.byte.dropped{background:var(--crit-soft); color:var(--crit); text-decoration:line-through; border-color:var(--crit)}
+
+/* ============================================================ tables === */
+.tablewrap{overflow-x:auto; margin:22px 0}
+table{border-collapse:collapse; width:100%; font-size:.88rem}
+th,td{text-align:right; padding:9px 13px; border-bottom:1px solid var(--rule); white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{
+  font-family:ui-monospace,monospace; font-size:.7rem; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-3); font-weight:600; border-bottom:1px solid var(--rule-strong);
+}
+tbody tr:hover{background:var(--sunk)}
+td.num{font-family:ui-monospace,monospace; font-variant-numeric:tabular-nums}
+.mark-bad{color:var(--crit); font-weight:600}
+.mark-good{color:var(--s3); font-weight:600}
+tr.hl td{background:var(--accent-soft)}
+
+/* ============================================================ charts === */
+.chartgrid{display:grid; gap:22px; grid-template-columns:repeat(auto-fit,minmax(360px,1fr))}
+figure{margin:0}
+figcaption{font-size:.85rem; color:var(--ink-2); margin-top:10px}
+.legend{display:flex; flex-wrap:wrap; gap:14px; margin:2px 0 12px}
+.lg{display:inline-flex; align-items:center; gap:7px; font-size:.79rem; color:var(--ink-2); font-family:ui-monospace,monospace}
+.lg i{width:20px; height:0; border-top-width:2.5px; border-top-style:solid; display:inline-block; border-radius:2px}
+.lg i.sw{height:11px; width:11px; border:0; border-radius:3px}
+svg{display:block; width:100%; height:auto; overflow:visible}
+.axis text{font-family:ui-monospace,monospace; font-size:10px; fill:var(--ink-3)}
+.axis line,.axis path{stroke:var(--grid)}
+.gridline{stroke:var(--grid); stroke-width:1}
+.axislabel{font-family:ui-monospace,monospace; font-size:9.5px; fill:var(--ink-3); letter-spacing:.06em}
+#tip{
+  position:fixed; z-index:50; pointer-events:none; opacity:0; transition:opacity .1s;
+  background:var(--surface); border:1px solid var(--rule-strong); border-radius:7px;
+  box-shadow:var(--shadow); padding:8px 11px; font-size:.78rem;
+  font-family:ui-monospace,monospace; color:var(--ink); max-width:270px;
+}
+#tip b{color:var(--ink); font-weight:600}
+#tip .t-row{display:flex; gap:10px; justify-content:space-between}
+#tip .t-row span:last-child{font-variant-numeric:tabular-nums}
+
+/* ============================================================ misc ===== */
+.callout{
+  border:1px solid var(--rule); border-left:2px solid var(--s2); background:var(--sunk);
+  border-radius:0 8px 8px 0; padding:16px 20px; margin:24px 0;
+}
+.callout.warn{border-left-color:var(--crit)}
+.callout.good{border-left-color:var(--s3)}
+.callout p:last-child{margin-bottom:0}
+.callout .eyebrow{margin-bottom:6px; display:block}
+ul.tight{margin:0 0 1.1em; padding-left:1.15em}
+ul.tight li{margin-bottom:.5em}
+footer{padding:44px 0 64px; color:var(--ink-3); font-size:.87rem}
+.themetoggle{
+  position:fixed; top:14px; right:14px; z-index:40;
+  font-family:ui-monospace,monospace; font-size:.7rem; letter-spacing:.06em;
+  background:var(--surface); color:var(--ink-2); border:1px solid var(--rule-strong);
+  border-radius:20px; padding:6px 13px; cursor:pointer;
+}
+.themetoggle:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{animation:none!important; transition:none!important}}
+</style>
+
+<button class="themetoggle" id="themebtn" type="button">theme</button>
+<div id="tip" role="status" aria-live="polite"></div>
+
+<header>
+  <div class="wrap titleblock">
+    <span class="eyebrow">Session 7 · Embeddings and Model Internals · assignment</span>
+    <h1>Spectral Byte&nbsp;Embeddings</h1>
+    <p class="sub">
+      Kronecker V2. One substitution — swap the one-hot position axis for a bank of
+      waves — answers both of the problems I picked, because they turn out to be the
+      same problem.
+    </p>
+    <div class="problems">
+      <div class="problem">
+        <span class="eyebrow">Problem 4</span>
+        <p>“What is a REAL Fourier alternative of Kronecker? Why can't I represent each
+        character like a Fourier wave, and just add them to make a word?”</p>
+      </div>
+      <div class="problem">
+        <span class="eyebrow">Problem 5</span>
+        <p>“Kronecker is forward deterministic. How do I make a reverse of this? Then we
+        can get rid of the final head, and have a vocab of 1M without any issues.”</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ======================================================== 1 ============ -->
+<section>
+  <div class="wrap">
+    <div class="prose">
+      <div class="sechead"><span class="secnum">§1</span><h2>The substitution</h2></div>
+      <p class="lede">
+        Kronecker builds a token's code from two one-hot vectors. Spectral Byte Embedding
+        keeps the skeleton and makes the position axis a wave.
+      </p>
+<pre><code>Kronecker   kappa(w) = (1/&radic;L) &Sigma;<sub>p</sub>  onehot256(byte<sub>p</sub>)  &otimes;  onehot32(p)
+
+Spectral    S(w)     = (1/&radic;L) &Sigma;<sub>p</sub>  phi(byte<sub>p</sub>)      &otimes;  psi(p)
+
+            psi(p) = [ .. cos(&omega;<sub>k</sub> p), sin(&omega;<sub>k</sub> p) .. ]</code></pre>
+      <p>
+        A one-hot basis is maximally sharp and maximally inflexible: you need one column
+        per position you want to represent, so <em>the number of columns is the maximum
+        token length</em>. Thirty-two columns, thirty-two bytes, hard wall.
+      </p>
+      <p>
+        A wave basis is a <em>function</em> of <code>p</code>, not a table of rows, so there
+        is no row to run out of. Below the window the two codes carry identical
+        information — <code>psi</code> is an orthogonal change of basis on the very same
+        grid. Above it they part company completely.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================== 2 ============ -->
+<section>
+  <div class="wrap">
+    <div class="prose">
+      <div class="sechead"><span class="secnum">§2</span><h2>Truncation destroys. Folding adds.</h2></div>
+      <p class="lede">
+        This is the whole argument, and you can watch it happen. Each byte of the word is
+        placed at its angle on a 32-position dial. Byte 32 lands back at the top.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">The position dial</span>
+        <div class="controls">
+          <div class="seg" role="group" aria-label="codec">
+            <button type="button" data-codec="spectral" aria-pressed="true">spectral</button>
+            <button type="button" data-codec="kronecker" aria-pressed="false">kronecker</button>
+          </div>
+          <label class="ctl">channels
+            <input type="range" id="nch" min="8" max="64" step="8" value="32">
+            <span class="mono" id="nchv">32</span>
+          </label>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="controls" style="margin-bottom:18px">
+          <input type="text" id="word" value="இருப்பினும்," spellcheck="false" aria-label="token to encode">
+          <div class="chips" id="presets"></div>
+        </div>
+        <div class="dialgrid">
+          <div><canvas id="dial" width="680" height="680" style="width:100%;height:auto"></canvas></div>
+          <div class="readout">
+            <div class="rline">
+              <span class="rlabel">bytes</span>
+              <span class="mono" id="nbytes"></span>
+            </div>
+            <div class="bytestrip" id="strip"></div>
+            <div class="rline">
+              <span class="rlabel">vs prefix</span>
+              <span class="rvalue" id="prefix" style="font-size:1rem"></span>
+            </div>
+            <div class="rline">
+              <span class="rlabel">decoded</span>
+              <span class="rvalue" id="decoded"></span>
+            </div>
+            <div class="rline">
+              <span class="rlabel">decode</span>
+              <span class="badge" id="rt"></span>
+            </div>
+            <div class="rline">
+              <span class="rlabel">input path</span>
+              <span class="mono" id="ipath" style="font-size:.8rem;color:var(--ink-2)"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-note" id="dialnote"></div>
+    </div>
+
+    <div class="prose">
+      <p>
+        Under Kronecker every byte past the window is multiplied by zero — struck through
+        above. Under the spectral codec it folds onto <code>p mod N</code> and
+        <em>adds</em>. Truncation is the special case of a fold whose out-of-window term
+        was replaced by zero, so folding strictly dominates: it never discards anything
+        truncation keeps, and it keeps things truncation discards.
+      </p>
+      <p>
+        That matters because the two failure modes have different relationships to
+        language. Two tokens collide under truncation whenever they share a 32-byte
+        prefix — and a shared prefix is not a rare accident, it is what morphology
+        <em>is</em>. Under folding a collision needs a numerical coincidence.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span class="panel-title">A word, and the same word with a comma</span></div>
+      <div class="panel-body" id="pairdemo"></div>
+      <div class="panel-note">
+        Both are real entries in the corpus vocabulary. Under the shipped codec a model
+        cannot learn that one of them ends a clause — the two inputs are the same vector.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================== 3 ============ -->
+<section>
+  <div class="wrap">
+    <div class="prose">
+      <div class="sechead"><span class="secnum">§3</span><h2>Running it backwards deletes the head</h2></div>
+      <p class="lede">
+        Because the position basis is an orthonormal real-DFT frame, the inverse is a
+        matched filter: one fixed tensor contraction, no parameters.
+      </p>
+<pre><code>charlogits[p, b]  =  &lt; code , phi(b) &otimes; psi(p) &gt;
+
+pred_code  = h @ W        # W is the input projection, transposed
+charlogits = fixed_inverse(pred_code)
+loss       = cross_entropy over the target token's BYTES</code></pre>
+      <p>
+        No <code>d_model &times; |V|</code> matrix appears anywhere in the graph. The only
+        trainable tensor facing the vocabulary is <code>W</code>, shaped
+        <code>code_dim &times; d_model</code> — and <strong>|V| does not appear in that
+        shape</strong>. In the trained model below the head holds exactly one parameter:
+        a scalar temperature.
+      </p>
+      <p>
+        With an invertible codec, weight tying stops being a heuristic that trades
+        geometry for memory and becomes exact — the head <em>is</em> <code>W<sup>T</sup></code>,
+        because the input and output live in the same space by construction.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span class="panel-title">Token interface, V5 reference shape (|V| = 131 072, d_model = 8 096)</span></div>
+      <div class="panel-body"><div class="tablewrap" id="paramtable"></div></div>
+      <div class="panel-note">
+        Training memory at 16 bytes per parameter — bf16 weight, bf16 gradient, fp32
+        master copy, and both AdamW moments.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================== 4 ============ -->
+<section>
+  <div class="wrap">
+    <div class="prose">
+      <div class="sechead"><span class="secnum">§4</span><h2>What was measured</h2></div>
+      <p class="lede">
+        A real 16 MB multilingual Wikipedia corpus — hi 4.0, ta 3.5, bn 3.0, te 2.1,
+        kn 1.9, en 1.2, mr 0.2 MB — and real byte-level BPE tokenizers trained on it.
+        Nothing below is synthetic.
+      </p>
+      <h3>4.1 &nbsp;The window is a sovereignty bug</h3>
+      <p>
+        Whether 32 bytes is generous depends entirely on which script you write in. UTF-8
+        spends one byte per Latin character and three per Indic character, and a Devanagari
+        conjunct costs nine.
+      </p>
+    </div>
+
+    <div class="chartgrid">
+      <figure class="panel"><div class="panel-body">
+        <h3 style="margin-bottom:4px">Distinct words that overflow 32 bytes</h3>
+        <div class="legend"><span class="lg"><i class="sw" style="background:var(--s2)"></i>share of the language's distinct words</span></div>
+        <div id="ch-overflow"></div>
+        <figcaption>A property of the language and the corpus, not of any tokenizer.</figcaption>
+      </div></figure>
+
+      <figure class="panel"><div class="panel-body">
+        <h3 style="margin-bottom:4px">Words made indistinguishable, by script</h3>
+        <div class="legend">
+          <span class="lg"><i class="sw" style="background:var(--s2)"></i>Kronecker · 8192</span>
+          <span class="lg"><i class="sw" style="background:var(--s1)"></i>Spectral · 8192</span>
+        </div>
+        <div id="ch-collide"></div>
+        <figcaption>Identical codes at equal budget, over 238 584 distinct words.</figcaption>
+      </div></figure>
+    </div>
+
+    <div class="prose">
+      <div class="callout good">
+        <span class="eyebrow">Result</span>
+        <p>
+          At the same 8192-dimensional budget the spectral codec collides on
+          <strong>zero</strong> words where Kronecker collides on <strong>16 673</strong>
+          (6.99 %). Kronecker needs <em>double</em> the budget to get down to 48.
+        </p>
+      </div>
+      <div class="callout warn">
+        <span class="eyebrow">Negative result, reported as found</span>
+        <p>
+          Over the actual <em>BPE</em> vocabularies the same census found
+          <strong>zero collisions for every codec at every vocabulary size</strong>. BPE
+          tokens are short — BPE stops merging when frequency runs out. So the strong form
+          of the Session 7 §8 claim is <em>not</em> supported on this corpus.
+        </p>
+        <p>
+          Two things keep that from settling it. The trend is monotone and points the
+          right way — the longest token runs 16 → 25 → 40 bytes as the vocabulary goes
+          8 k → 32 k → 131 k, and a 16 MB corpus only produced ~85 k real merges at the
+          131 072 setting, so this proxy understates a production corpus. And word level
+          is where a byte codec earns its keep anyway: its advertised benefit is that
+          <em>unseen</em> strings still get a sensible vector, and unseen strings are
+          words.
+        </p>
+      </div>
+
+      <h3>4.2 &nbsp;Fidelity, noise, and the rank bottleneck</h3>
+      <p>
+        Three separate questions, easily conflated. Does the code stay <em>distinct</em>
+        (what an embedding needs)? Does it stay <em>resolvable</em> position by position
+        (what generation needs)? And does it survive being squeezed through
+        <code>d_model</code> (what decides whether any of this is buildable)?
+      </p>
+    </div>
+
+    <div class="chartgrid">
+      <figure class="panel"><div class="panel-body">
+        <h3 style="margin-bottom:4px">Round-trip vs length · 8192-dim budget</h3>
+        <div class="legend" id="lg-rt1"></div>
+        <div id="ch-rt1"></div>
+        <figcaption>Real words. Kronecker's cliff at 32 bytes is total.</figcaption>
+      </div></figure>
+
+      <figure class="panel"><div class="panel-body">
+        <h3 style="margin-bottom:4px">Round-trip vs length · 16384-dim budget</h3>
+        <div class="legend" id="lg-rt2"></div>
+        <div id="ch-rt2"></div>
+        <figcaption>Double the budget. A multi-modulus ladder reaches further than
+        a wider window does.</figcaption>
+      </div></figure>
+    </div>
+
+    <div class="chartgrid">
+      <figure class="panel"><div class="panel-body">
+        <h3 style="margin-bottom:4px">Recovery under additive noise</h3>
+        <div class="legend" id="lg-noise"></div>
+        <div id="ch-noise"></div>
+        <figcaption id="noisecap">Gaussian error scaled to each code's own RMS.</figcaption>
+      </div></figure>
+
+      <figure class="panel"><div class="panel-body">
+        <h3 style="margin-bottom:4px">The rank bottleneck — how wide must d_model be?</h3>
+        <div class="legend" id="lg-rank"></div>
+        <div id="ch-rank"></div>
+        <figcaption>
+          The vocabulary's codes compressed to <em>d</em> dimensions by PCA — the best any
+          linear projection can do — then reconstructed and decoded. Below the knee a
+          head-free decoder cannot work however it is trained; above it, nothing is lost.
+        </figcaption>
+      </div></figure>
+    </div>
+
+    <div class="prose">
+      <h3>4.3 &nbsp;Does a head-free model learn language?</h3>
+      <p>
+        Five arms, identical trunk, identical data, identical seed, so every adjacent pair
+        isolates exactly one variable.
+      </p>
+    </div>
+    <div class="panel"><div class="panel-body"><div class="tablewrap" id="armtable"></div></div></div>
+
+    <div class="chartgrid">
+      <figure class="panel"><div class="panel-body">
+        <h3 style="margin-bottom:4px">Does a byte codec work at all?</h3>
+        <div class="legend" id="lg-train1"></div>
+        <div id="ch-train1"></div>
+        <figcaption>Same dense head on all three; only the input path changes.</figcaption>
+      </div></figure>
+
+      <figure class="panel"><div class="panel-body">
+        <h3 style="margin-bottom:4px">Does deleting the head work?</h3>
+        <div class="legend" id="lg-train2"></div>
+        <div id="ch-train2"></div>
+        <figcaption>Same spectral codec; the |V|-way head is gone entirely.</figcaption>
+      </div></figure>
+    </div>
+
+    <div class="prose" id="trainnotes"></div>
+
+    <div class="prose">
+      <h3>4.4 &nbsp;A vocabulary of one million</h3>
+      <p>
+        The code is a pure function of a token's bytes, so the <code>|V| &times; code_dim</code>
+        table is a convenience, never a requirement. Above a threshold the implementation
+        computes codes on demand for the few thousand distinct tokens in the batch and
+        never materialises the table — which is what makes a million-token vocabulary cost
+        what a 32 k one costs.
+      </p>
+    </div>
+    <div class="panel"><div class="panel-body"><div class="tablewrap" id="milliontable"></div></div>
+      <div class="panel-note" id="millionnote"></div></div>
+  </div>
+</section>
+
+<!-- ======================================================== 5 ============ -->
+<section>
+  <div class="wrap prose">
+    <div class="sechead"><span class="secnum">§5</span><h2>What the ladder taught me</h2></div>
+    <p class="lede">The frequency ladder is the design, not a detail.</p>
+    <ul class="tight">
+      <li>
+        <strong>A geometric / RoPE-style ladder is broken here.</strong> It is the obvious
+        first guess, and <code>&omega; = &pi;</code> makes <code>sin(&pi;p) = 0</code> for
+        every integer <code>p</code> — a dead channel — while the slow channels cannot
+        separate adjacent positions. Measured condition number <code>3.3e17</code>.
+      </li>
+      <li>
+        <strong>A plain DFT ladder is exactly orthonormal</strong> (condition number
+        1.000), exactly invertible in-window, and collision-free. It is the default.
+      </li>
+      <li>
+        <strong>A multi-modulus “vernier” ladder buys range and costs exactness.</strong>
+        On random bytes it decodes 80 positions from 32 channels — real super-resolution
+        by a Chinese-remainder argument. On real text it degrades, because UTF-8 repeats
+        continuation bytes heavily and breaks the sparsity its recovery assumes. At 64
+        channels it still beats Kronecker-64 on long words with zero collisions.
+      </li>
+    </ul>
+
+    <div class="sechead" style="margin-top:44px"><span class="secnum">§6</span><h2>Honest limitations</h2></div>
+    <ul class="tight">
+      <li><strong>The likelihood is byte-factorised.</strong> It ignores correlations
+      between bytes inside a token and puts mass on strings that are not tokens, so the
+      reported bits-per-byte is an <em>upper bound</em>. A trie-constrained
+      renormalisation would make it exact; it is not implemented.</li>
+      <li><strong>Training is a proxy.</strong> CPU-only, a few million parameters, ~1 M
+      tokens. The arms are matched in data, seed and trunk, so the ordering is meaningful;
+      the absolute numbers are not.</li>
+      <li><strong>The corpus is 16 MB</strong> — enough for a real multilingual BPE and a
+      real word census, not enough to reproduce production token lengths at V=131 072.</li>
+      <li><strong>Past the grid, resolvability is gone, not just degraded.</strong> Folding
+      preserves distinctness, which is what the embedding needs. It does not preserve
+      position-by-position recovery, which is what generation needs.</li>
+      <li><strong>The rank bottleneck is real.</strong> At V5's reference shape
+      (code 8 192, <code>d_model</code> 8 096) the ratio is ≈1.01 and it essentially
+      vanishes; in the toy it is 8–32×, so the toy is a <em>pessimistic</em> proxy.</li>
+    </ul>
+  </div>
+</section>
+
+<footer><div class="wrap prose">
+  <p>
+    Code, data and the four experiment scripts are in the repository beside this page.
+    Every number here is read from <code>results/*.json</code>, produced by
+    <code>spectral/experiments/</code> on an 8-core CPU.
+  </p>
+</div></footer>
+
+<script>
+/* ==================================================================== data */
+const DATA = {"pair": ["இருப்பினும்", "இருப்பினும்,"], "wordOverflow": [{"lang": "Tamil", "pct": 35.06, "distinct": 53284}, {"lang": "Kannada", "pct": 31.41, "distinct": 37209}, {"lang": "Telugu", "pct": 19.21, "distinct": 30371}, {"lang": "Bengali", "pct": 14.31, "distinct": 38745}, {"lang": "Marathi", "pct": 12.79, "distinct": 4496}, {"lang": "Hindi", "pct": 6.45, "distinct": 42728}, {"lang": "English", "pct": 0.05, "distinct": 40413}], "collideByScript": [{"script": "Tamil", "n": 45763, "kron": 18.519, "spec": 0.0}, {"script": "Kannada", "n": 34910, "kron": 10.954, "spec": 0.0}, {"script": "Telugu", "n": 27117, "kron": 7.246, "spec": 0.0}, {"script": "Bengali", "n": 35628, "kron": 5.179, "spec": 0.0}, {"script": "Devanagari", "n": 39409, "kron": 1.393, "spec": 0.0}, {"script": "Latin", "n": 54999, "kron": 0.027, "spec": 0.0}, {"script": "Other", "n": 755, "kron": 0.0, "spec": 0.0}], "roundtrip": {"buckets": ["1-8", "9-16", "17-24", "25-32", "33-40", "41-56", "57-80", "81+"], "budget8192": {"series": [{"name": "Spectral · DFT 32 ch", "slot": "s1", "values": [1.0, 1.0, 1.0, 0.9943, 0.0, 0.0, 0.0, 0.0], "dash": false, "short": ""}, {"name": "Kronecker · pos_dim 32", "slot": "s2", "values": [1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0], "dash": true, "short": ""}]}, "budget16384": {"series": [{"name": "Spectral · vernier3 64 ch", "slot": "s1", "values": [1.0, 1.0, 1.0, 1.0, 1.0, 0.9822, 0.8715, 0.125], "dash": false, "short": ""}, {"name": "Kronecker · pos_dim 64", "slot": "s2", "values": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.7951, 0.0], "dash": true, "short": ""}]}}, "noise": {"sigmas": [0.0, 0.05, 0.1, 0.2, 0.3, 0.5, 0.75, 1.0], "series": [{"name": "Spectral · 8192", "slot": "s1", "values": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], "dash": false, "short": ""}, {"name": "Spectral · 2048", "slot": "s3", "values": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.9996, 0.9895], "dash": false, "short": ""}, {"name": "Kronecker · 8192", "slot": "s2", "values": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], "dash": true, "short": ""}], "caption": "Both designs are essentially immune at this scale, so this is a null result and is reported as one. Kronecker survives because a one-hot peak has enormous margin; the spectral code survives because its matched filter integrates all 8192 channels coherently."}, "rank": {"dims": [32, 64, 128, 256, 384, 512, 768, 1024, 1536, 2048, 4096], "series": [{"name": "Spectral · 8192", "slot": "s1", "values": [0.016, 0.1045, 0.3054, 0.6211, 0.7983, 0.8912, 0.9767, 0.9931, 1.0, 1.0, 1.0], "dash": false, "short": ""}, {"name": "Spectral · 2048", "slot": "s3", "values": [0.0486, 0.2836, 0.5926, 0.9437, 0.993, 1.0, 1.0, 1.0, 1.0, 1.0, null], "dash": false, "short": ""}, {"name": "Kronecker · 8192", "slot": "s2", "values": [0.0068, 0.0697, 0.1912, 0.4848, 0.7046, 0.8254, 0.9478, 0.9796, 1.0, 1.0, 1.0], "dash": true, "short": ""}]}, "paramTable": [{"hl": false, "cells": ["dense table, untied head", "1,061,158,912", {"v": "1,061,158,912", "cls": ""}, "2,122,317,824", "33.96 GB", {"v": "1.0×", "cls": ""}]}, {"hl": false, "cells": ["dense table, tied head", "1,061,158,912", {"v": "0", "cls": "mark-good"}, "1,061,158,912", "16.98 GB", {"v": "2.0×", "cls": "mark-good"}]}, {"hl": false, "cells": ["factorized r=512 + dense head", "71,254,016", {"v": "1,061,158,912", "cls": ""}, "1,132,412,928", "18.12 GB", {"v": "1.9×", "cls": "mark-good"}]}, {"hl": false, "cells": ["Kronecker 8192 + dense head", "66,322,432", {"v": "1,061,158,912", "cls": ""}, "1,127,481,344", "18.04 GB", {"v": "1.9×", "cls": "mark-good"}]}, {"hl": true, "cells": ["spectral 8192, no head", "66,322,432", {"v": "0", "cls": "mark-good"}, "66,322,432", "1.06 GB", {"v": "32.0×", "cls": "mark-good"}]}], "armTable": [{"hl": false, "cells": ["A · dense", "dense table", "dense untied", "8,192,000", {"v": "8,192,000", "cls": ""}, "19,534,336", "1.4748"]}, {"hl": false, "cells": ["B · kron8192_head", "Kronecker 8192", "dense", "2,097,152", {"v": "8,192,000", "cls": ""}, "13,439,488", "1.4323"]}, {"hl": false, "cells": ["C · spec8192_head", "spectral 8192", "dense", "2,097,152", {"v": "8,192,000", "cls": ""}, "13,439,488", "1.4334"]}, {"hl": true, "cells": ["D · spec8192_headfree", "spectral 8192", "none", "2,097,152", {"v": "1", "cls": "mark-good"}, "5,247,489", "2.0919"]}, {"hl": true, "cells": ["E · spec2048_headfree", "spectral 2048", "none", "524,288", {"v": "1", "cls": "mark-good"}, "3,674,625", "2.5735"]}], "training": {"steps": [125, 250, 375, 500, 625, 750, 875, 999], "ymin": 1.2822693591276715, "ymax": 3.7789374881876068, "withHead": {"series": [{"name": "dense table (control)", "slot": "ref", "values": [2.147, 1.7029, 1.6077, 1.5472, 1.5105, 1.4852, 1.4762, 1.4748], "dash": false, "short": ""}, {"name": "Kronecker 8192 · head dense", "slot": "s2", "values": [2.2337, 1.6345, 1.5299, 1.4848, 1.4569, 1.4385, 1.4329, 1.4323], "dash": true, "short": ""}, {"name": "spectral 8192 · head dense", "slot": "s1", "values": [2.1751, 1.6206, 1.5252, 1.4862, 1.459, 1.4402, 1.4341, 1.4334], "dash": false, "short": ""}]}, "headFree": {"series": [{"name": "dense table (control)", "slot": "ref", "values": [2.147, 1.7029, 1.6077, 1.5472, 1.5105, 1.4852, 1.4762, 1.4748], "dash": false, "short": ""}, {"name": "spectral 8192 · head none", "slot": "s1", "values": [2.8948, 2.7345, 2.2428, 2.1738, 2.1378, 2.1042, 2.0938, 2.0919], "dash": false, "short": ""}, {"name": "spectral 2048 · head none", "slot": "s5", "values": [3.6789, 3.357, 2.8823, 2.7093, 2.6287, 2.5962, 2.5784, 2.5735], "dash": false, "short": ""}]}, "notes": "<h3>Reading this honestly</h3><p><strong>The byte codecs beat the dense table.</strong> Kronecker lands at 1.4323 bits/byte and spectral at 1.4334, against the dense control's 1.475 — with 6.1 M fewer parameters each. The two codecs are tied to within noise, and that is the result: at equal budget a spectral code is <em>not</em> a better language model than a Kronecker one. Its advantages are the ones measured above — no collisions, and an analytic inverse — not perplexity.</p><p><strong>Deleting the head costs real quality at this scale.</strong> The head-free arm reaches 2.092 bits/byte against the control's 1.475, with a head of <strong>1</strong> parameter and 5,247,489 in total. It reproduces the next token's complete byte string exactly <strong>17.4%</strong> of the time with no vocabulary consulted anywhere. That is a working mechanism, not a free lunch, and the gap is what the rank curve predicts: at <code>d_model</code> 256 only 62 % of the 8192-dimensional codes survive a linear squeeze to 256 dimensions. V5's <code>d_model</code> of 8 096 sits far above that knee — but that is an extrapolation from the rank measurement, not something this run tested.</p><p><strong>A prediction of mine that failed.</strong> The rank curve says the 2048-dimensional code survives a 256-dimensional bottleneck far better (94 % vs 62 %), so I expected arm E to beat arm D. It did not — E is worse (2.574 vs 2.092). The likely reason is that the rank curve measures how well a code survives compression, while the trained decode is limited by the capacity of the projection itself, and E's is a quarter the size of D's; E's 64-dimensional character basis is also lossy over 256 byte values where D's is exact. The rank curve bounds what is possible; it does not predict what is learned.</p><p>One handicap worth restating: the head-free arms define a distribution over all byte strings, including strings that are not tokens, so their bits-per-byte is an <em>upper bound</em> on a vocabulary-renormalised version. The comparison is tilted against them.</p>"}, "millionTable": [{"hl": false, "cells": ["32,000", "524,289", {"v": "1", "cls": "mark-good"}, "1.19", "16,384,000", {"v": "31.2×", "cls": "mark-good"}]}, {"hl": false, "cells": ["131,072", "524,289", {"v": "1", "cls": "mark-good"}, "1.17", "67,108,864", {"v": "128.0×", "cls": "mark-good"}]}, {"hl": true, "cells": ["1,000,000", "524,289", {"v": "1", "cls": "mark-good"}, "1.20", "512,000,000", {"v": "976.6×", "cls": "mark-good"}]}], "millionNote": "Real forward and backward passes, run on this CPU at d_model 256. The token-interface parameter count is identical across all three rows because |V| does not appear in it. At 1,000,000 the code table is never materialised — codes are computed on demand for the distinct tokens in each batch."};
+
+/* ============================================================ theme ====== */
+const btn = document.getElementById('themebtn');
+btn.addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : cur === 'light' ? null : 'dark';
+  if (next) document.documentElement.setAttribute('data-theme', next);
+  else document.documentElement.removeAttribute('data-theme');
+  btn.textContent = next || 'system';
+  requestAnimationFrame(drawDial);
+});
+
+/* ============================================ the codec, in the browser == */
+function realFourierFrame(N, nch){
+  const rows = [];
+  for (let p = 0; p < N; p++){
+    const row = [1/Math.sqrt(N)];
+    let k = 1;
+    while (row.length < nch){
+      const a = 2*Math.PI*k*p/N;
+      if (2*k === N) row.push(Math.cos(a)/Math.sqrt(N));
+      else { row.push(Math.cos(a)*Math.sqrt(2/N)); if (row.length < nch) row.push(Math.sin(a)*Math.sqrt(2/N)); }
+      k++;
+    }
+    rows.push(row.slice(0, nch));
+  }
+  return rows;
+}
+const PSI = {};
+function psiFor(N){ if(!PSI[N]) PSI[N] = realFourierFrame(N, N); return PSI[N]; }
+
+function encodeSpectral(bytes, N){
+  const psi = psiFor(N), seq = [...bytes, 0], L = seq.length;
+  const code = new Float64Array(256*N);
+  for (let p = 0; p < L; p++){
+    const row = psi[p % N], off = seq[p]*N;
+    for (let q = 0; q < N; q++) code[off+q] += row[q];
+  }
+  const s = 1/Math.sqrt(L);
+  for (let i = 0; i < code.length; i++) code[i] *= s;
+  return code;
+}
+function decodeSpectral(code, N){
+  const psi = psiFor(N), out = [];
+  for (let g = 0; g < N; g++){
+    const row = psi[g];
+    let best = -1, bv = -Infinity;
+    for (let b = 0; b < 256; b++){
+      let s = 0; const off = b*N;
+      for (let q = 0; q < N; q++) s += code[off+q]*row[q];
+      if (s > bv){ bv = s; best = b; }
+    }
+    if (best === 0) break;
+    out.push(best);
+  }
+  return out;
+}
+function encodeKron(bytes, P){
+  const L = Math.min(bytes.length, P);
+  const code = new Float64Array(256*P);
+  for (let p = 0; p < L; p++) code[bytes[p]*P + p] = 1;
+  const s = 1/Math.sqrt(Math.max(L,1));
+  for (let i = 0; i < code.length; i++) code[i] *= s;
+  return code;
+}
+function decodeKron(code, P){
+  const out = [];
+  let peak = 0;
+  for (let i = 0; i < code.length; i++) if (code[i] > peak) peak = code[i];
+  for (let p = 0; p < P; p++){
+    let best = -1, bv = -Infinity;
+    for (let b = 0; b < 256; b++){ const v = code[b*P+p]; if (v > bv){ bv = v; best = b; } }
+    if (bv <= 0.5*peak) break;
+    out.push(best);
+  }
+  return out;
+}
+const enc = new TextEncoder(), dec = new TextDecoder('utf-8', {fatal:false});
+const bytesOf = s => Array.from(enc.encode(s));
+const strOf = a => dec.decode(new Uint8Array(a));
+const sameBytes = (a,b) => a.length===b.length && a.every((v,i)=>v===b[i]);
+function maxDiff(a,b){ let m=0; for(let i=0;i<a.length;i++) m=Math.max(m,Math.abs(a[i]-b[i])); return m; }
+
+/* ============================================================ the dial === */
+let CODEC = 'spectral', NCH = 32;
+const cv = document.getElementById('dial'), ctx = cv.getContext('2d');
+const css = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+
+function drawDial(){
+  const s = document.getElementById('word').value;
+  const by = bytesOf(s);
+  const N = NCH, DPR = Math.min(2, window.devicePixelRatio||1);
+  const W = 680;
+  cv.width = W*DPR; cv.height = W*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.clearRect(0,0,W,W);
+  const cxp = W/2, cyp = W/2, R = W*0.40;
+
+  const inkA = css('--ink-3'), rule = css('--rule'), acc = css('--accent');
+  const crit = css('--crit'), s3 = css('--s3'), surf = css('--surface');
+
+  // dial ticks
+  ctx.strokeStyle = rule; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(cxp,cyp,R,0,Math.PI*2); ctx.stroke();
+  ctx.font = '10px ui-monospace, monospace'; ctx.fillStyle = inkA;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  for (let p = 0; p < N; p++){
+    const a = -Math.PI/2 + 2*Math.PI*p/N;
+    const x1 = cxp + Math.cos(a)*(R-6), y1 = cyp + Math.sin(a)*(R-6);
+    const x2 = cxp + Math.cos(a)*R,     y2 = cyp + Math.sin(a)*R;
+    ctx.strokeStyle = rule; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    if (p % 4 === 0){
+      const lx = cxp + Math.cos(a)*(R+16), ly = cyp + Math.sin(a)*(R+16);
+      ctx.fillText(String(p), lx, ly);
+    }
+  }
+
+  const laps = Math.max(1, Math.ceil(by.length/N));
+  const ringGap = Math.min(30, (R-70)/Math.max(1,laps));
+  const pt = p => {
+    const lap = Math.floor(p/N), a = -Math.PI/2 + 2*Math.PI*(p%N)/N;
+    const r = R - 26 - lap*ringGap;
+    return [cxp + Math.cos(a)*r, cyp + Math.sin(a)*r, lap];
+  };
+
+  // connecting spiral
+  ctx.lineWidth = 1.5;
+  for (let p = 1; p < by.length; p++){
+    const [x0,y0,l0] = pt(p-1), [x1,y1,l1] = pt(p);
+    const dropped = CODEC==='kronecker' && (l0>0 || l1>0);
+    ctx.strokeStyle = dropped ? rule : (l1>0 ? s3 : acc);
+    ctx.globalAlpha = dropped ? .35 : .45;
+    ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  // byte dots
+  for (let p = 0; p < by.length; p++){
+    const [x,y,lap] = pt(p);
+    const dropped = CODEC==='kronecker' && lap>0;
+    ctx.beginPath(); ctx.arc(x,y,9,0,Math.PI*2);
+    ctx.fillStyle = dropped ? surf : (lap>0 ? s3 : acc);
+    ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = dropped ? crit : surf; ctx.stroke();
+    if (dropped){
+      ctx.strokeStyle = crit; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(x-4.5,y-4.5); ctx.lineTo(x+4.5,y+4.5);
+      ctx.moveTo(x+4.5,y-4.5); ctx.lineTo(x-4.5,y+4.5); ctx.stroke();
+    }
+  }
+
+  // centre readout
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle = css('--ink');
+  ctx.font = '600 15px ui-monospace, monospace';
+  ctx.fillText(CODEC === 'spectral' ? 'folds and adds' : 'truncates', cxp, cyp-12);
+  ctx.font = '11px ui-monospace, monospace'; ctx.fillStyle = inkA;
+  const over = Math.max(0, by.length - N);
+  ctx.fillText(over ? (CODEC==='spectral'
+      ? `${over} byte${over>1?'s':''} folded onto lap 1`
+      : `${over} byte${over>1?'s':''} destroyed`) : 'fits in one lap', cxp, cyp+10);
+
+  updateReadout(by, N);
+}
+
+function updateReadout(by, N){
+  const code = CODEC==='spectral' ? encodeSpectral(by, N) : encodeKron(by, N);
+  const out  = CODEC==='spectral' ? decodeSpectral(code, N) : decodeKron(code, N);
+  const ok = sameBytes(out, by);
+
+  document.getElementById('nbytes').textContent =
+    `${by.length} bytes · ${[...document.getElementById('word').value].length} characters`;
+
+  const strip = document.getElementById('strip'); strip.innerHTML='';
+  by.slice(0,96).forEach((b,p) => {
+    const el = document.createElement('span');
+    const lap = Math.floor(p/N);
+    el.className = 'byte' + (lap>0 ? (CODEC==='kronecker' ? ' dropped' : ' lap1') : '');
+    el.textContent = b.toString(16).padStart(2,'0');
+    el.title = `position ${p} · byte 0x${b.toString(16)}`;
+    strip.appendChild(el);
+  });
+
+  const d = document.getElementById('decoded');
+  d.textContent = out.length ? strOf(out) : '—';
+  d.className = 'rvalue ' + (ok ? 'good' : 'bad');
+  const rt = document.getElementById('rt');
+  rt.textContent = ok ? 'byte-exact' : 'beyond resolvable range';
+  rt.className = 'badge ' + (ok ? 'ok' : 'bad');
+
+  // The claim under test, computed live: is this token still distinguishable
+  // from its own truncated prefix?  That is what a collision IS, and it is a
+  // different question from whether the token can be read back out.
+  const px = document.getElementById('prefix');
+  if (by.length <= N){
+    px.className = 'rvalue'; px.style.color = 'var(--ink-3)';
+    px.textContent = `fits in ${N} bytes — nothing to lose`;
+  } else {
+    const cut = by.slice(0, N);
+    const other = CODEC==='spectral' ? encodeSpectral(cut, N) : encodeKron(cut, N);
+    const diff = maxDiff(code, other);
+    const dead = diff < 1e-12;
+    px.className = 'rvalue ' + (dead ? 'bad' : 'good');
+    px.style.color = '';
+    px.textContent = dead
+      ? `identical to its ${N}-byte prefix (Δ 0.00e+00)`
+      : `distinct from its ${N}-byte prefix (Δ ${diff.toFixed(4)})`;
+  }
+
+  const dim = 256*N;
+  document.getElementById('ipath').textContent =
+    `code_dim ${dim} · proj ${dim}×d_model · head ${CODEC==='spectral' ? '0 params (Wᵀ)' : '|V|×d_model'}`;
+  document.getElementById('dialnote').textContent = CODEC==='spectral'
+    ? `Spectral: psi(p) is periodic, so position ${N} lands on position 0 and adds. Nothing is discarded — but only ${N} positions can be resolved on the way back.`
+    : `Kronecker: there is no column for position ${N}, so every byte from there on is multiplied by zero. Two tokens sharing a ${N}-byte prefix become the same vector permanently.`;
+}
+
+/* ------------------------------------------------------------- controls - */
+document.querySelectorAll('[data-codec]').forEach(b => b.addEventListener('click', () => {
+  CODEC = b.dataset.codec;
+  document.querySelectorAll('[data-codec]').forEach(x =>
+    x.setAttribute('aria-pressed', String(x === b)));
+  drawDial();
+}));
+document.getElementById('nch').addEventListener('input', e => {
+  NCH = +e.target.value; document.getElementById('nchv').textContent = NCH; drawDial();
+});
+document.getElementById('word').addEventListener('input', drawDial);
+
+const PRESETS = ['இருப்பினும்,','அந்தர்ராஷ்டிரிய','अंतर्राष्ट्रीयकरण','ಕನ್ನಡದಲ್ಲಿ','వ్యవసాయానికి','internationalization','train'];
+const pc = document.getElementById('presets');
+PRESETS.forEach(w => {
+  const b = document.createElement('button');
+  b.type='button'; b.className='chip'; b.textContent = w.length>16 ? w.slice(0,15)+'…' : w;
+  b.title = w;
+  b.addEventListener('click', () => { document.getElementById('word').value = w; drawDial(); });
+  pc.appendChild(b);
+});
+
+/* ------------------------------------------------------- the comma pair - */
+(function(){
+  const [a,b] = DATA.pair;
+  const ab = bytesOf(a), bb = bytesOf(b);
+  const kd = maxDiff(encodeKron(ab,32), encodeKron(bb,32));
+  const sd = maxDiff(encodeSpectral(ab,32), encodeSpectral(bb,32));
+  document.getElementById('pairdemo').innerHTML = `
+    <div class="tablewrap"><table>
+      <thead><tr><th>token</th><th>bytes</th><th>Kronecker-32 code</th><th>Spectral-32 code</th></tr></thead>
+      <tbody>
+        <tr><td style="font-size:1.15rem">${a}</td><td class="num">${ab.length}</td>
+            <td class="num" rowspan="2" style="vertical-align:middle">
+              <span class="mark-bad">difference 0.00e+00</span><br>
+              <span style="color:var(--ink-3);font-size:.8rem">bit-identical, forever</span></td>
+            <td class="num" rowspan="2" style="vertical-align:middle">
+              <span class="mark-good">difference ${sd.toFixed(4)}</span><br>
+              <span style="color:var(--ink-3);font-size:.8rem">separated</span></td></tr>
+        <tr><td style="font-size:1.15rem">${b}</td><td class="num">${bb.length}</td></tr>
+      </tbody></table></div>`;
+  if (kd > 1e-12) console.warn('pair no longer collides under Kronecker-32', kd);
+})();
+
+/* ============================================================ charts ==== */
+const tip = document.getElementById('tip');
+function showTip(html, ev){
+  tip.innerHTML = html; tip.style.opacity = 1;
+  const r = tip.getBoundingClientRect();
+  let x = ev.clientX + 14, y = ev.clientY - r.height - 12;
+  if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 14;
+  if (y < 8) y = ev.clientY + 16;
+  tip.style.left = x+'px'; tip.style.top = y+'px';
+}
+const hideTip = () => tip.style.opacity = 0;
+const SVGNS = 'http://www.w3.org/2000/svg';
+function el(n, attrs){ const e = document.createElementNS(SVGNS, n);
+  for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+
+function barChart(mount, rows, opts){
+  const W = 520, H = opts.height||260, mL = opts.mL||96, mR = 20, mT = 8, mB = 30;
+  const iw = W-mL-mR, ih = H-mT-mB;
+  const svg = el('svg',{viewBox:`0 0 ${W} ${H}`, role:'img'});
+  const max = opts.max || Math.max(...rows.flatMap(r => r.values));
+  const nS = rows[0].values.length;
+  const band = ih/rows.length, bh = Math.min(opts.barH||13, (band-8)/nS);
+
+  for (let i = 0; i <= 4; i++){
+    const x = mL + iw*i/4;
+    svg.appendChild(el('line',{x1:x,y1:mT,x2:x,y2:mT+ih,class:'gridline'}));
+    const t = el('text',{x, y:H-10, 'text-anchor':'middle', class:'axislabel'});
+    t.textContent = (max*i/4).toFixed(max<=1?2:0) + (opts.pct?'%':'');
+    svg.appendChild(t);
+  }
+  rows.forEach((r,i) => {
+    const y0 = mT + i*band;
+    const lab = el('text',{x:mL-10, y:y0+band/2, 'text-anchor':'end',
+                           'dominant-baseline':'middle', class:'axislabel'});
+    lab.textContent = r.label; svg.appendChild(lab);
+    r.values.forEach((v,j) => {
+      const w = Math.max(v>0 ? 2 : 0, iw*v/max);
+      const y = y0 + band/2 - (nS*bh+2*(nS-1))/2 + j*(bh+2);
+      const rect = el('rect',{x:mL, y, width:w, height:bh, rx:Math.min(4,bh/2),
+                              fill:opts.colors[j], 'stroke-width':2, stroke:'var(--surface)'});
+      rect.addEventListener('mousemove', ev => showTip(
+        `<b>${r.label}</b><div class="t-row"><span>${opts.series[j]}</span><span>${
+          opts.fmt ? opts.fmt(v) : v}</span></div>${r.note?`<div style="color:var(--ink-3);margin-top:4px">${r.note}</div>`:''}`, ev));
+      rect.addEventListener('mouseleave', hideTip);
+      svg.appendChild(rect);
+      if (opts.labelBars){
+        const t = el('text',{x:mL+w+6, y:y+bh/2, 'dominant-baseline':'middle', class:'axislabel'});
+        t.textContent = opts.fmt ? opts.fmt(v) : v;
+        svg.appendChild(t);
+      }
+    });
+  });
+  mount.innerHTML=''; mount.appendChild(svg);
+}
+
+function lineChart(mount, series, opts){
+  const W = 520, H = opts.height||270, mL = 46, mR = 16, mT = 12, mB = 42;
+  const iw = W-mL-mR, ih = H-mT-mB;
+  const svg = el('svg',{viewBox:`0 0 ${W} ${H}`, role:'img'});
+  const xs = opts.x, n = xs.length;
+  const X = i => mL + (n===1?iw/2: iw*i/(n-1));
+  const ymax = opts.ymax ?? 1, ymin = opts.ymin ?? 0;
+  const Y = v => mT + ih*(1-(v-ymin)/(ymax-ymin));
+
+  for (let i = 0; i <= 4; i++){
+    const v = ymin + (ymax-ymin)*i/4, y = Y(v);
+    svg.appendChild(el('line',{x1:mL,y1:y,x2:mL+iw,y2:y,class:'gridline'}));
+    const t = el('text',{x:mL-8,y,'text-anchor':'end','dominant-baseline':'middle',class:'axislabel'});
+    t.textContent = opts.yfmt ? opts.yfmt(v) : v.toFixed(2);
+    svg.appendChild(t);
+  }
+  xs.forEach((xv,i) => {
+    if (opts.everyX && i % opts.everyX) return;
+    const t = el('text',{x:X(i), y:H-mB+16, 'text-anchor':'middle', class:'axislabel'});
+    t.textContent = xv; svg.appendChild(t);
+  });
+  if (opts.xtitle){
+    const t = el('text',{x:mL+iw/2, y:H-6, 'text-anchor':'middle', class:'axislabel'});
+    t.textContent = opts.xtitle; svg.appendChild(t);
+  }
+
+  series.forEach(s => {
+    const pts = s.values.map((v,i) => v==null?null:[X(i),Y(v)]).filter(Boolean);
+    if (!pts.length) return;
+    svg.appendChild(el('path',{
+      d:'M'+pts.map(p=>p.join(' ')).join('L'), fill:'none', stroke:s.color,
+      'stroke-width':2.5, 'stroke-linejoin':'round', 'stroke-linecap':'round',
+      ...(s.dash?{'stroke-dasharray':'6 4'}:{})}));
+    s.values.forEach((v,i) => {
+      if (v==null) return;
+      const c = el('circle',{cx:X(i), cy:Y(v), r:4.5, fill:s.color,
+                             stroke:'var(--surface)','stroke-width':2});
+      c.addEventListener('mousemove', ev => showTip(
+        `<b>${xs[i]}</b><div class="t-row"><span>${s.name}</span><span>${
+          opts.tfmt?opts.tfmt(v):v}</span></div>`, ev));
+      c.addEventListener('mouseleave', hideTip);
+      svg.appendChild(c);
+    });
+    if (s.label !== false){
+      const li = s.values.reduce((a,v,i)=>v==null?a:i,-1);
+      if (li>=0){
+        const t = el('text',{x:X(li)+8, y:Y(s.values[li]), 'dominant-baseline':'middle',
+                             class:'axislabel', fill:'var(--ink-2)'});
+        t.textContent = s.short || ''; svg.appendChild(t);
+      }
+    }
+  });
+  mount.innerHTML=''; mount.appendChild(svg);
+}
+function legend(mount, series){
+  mount.innerHTML = series.map(s =>
+    `<span class="lg"><i style="border-top-color:${s.color};${s.dash?'border-top-style:dashed':''}"></i>${s.name}</span>`
+  ).join('');
+}
+
+/* -------------------------------------------------------------- render -- */
+/* Colour law for the whole page: orange = Kronecker, blue = Spectral, and the
+   dense-table control is a grey reference line rather than a peer series.
+   Kronecker is additionally dashed, so identity is never colour alone.       */
+const C = {s1:'var(--s1)', s2:'var(--s2)', s3:'var(--s3)',
+           s4:'var(--s4)', s5:'var(--s5)', ref:'var(--ink-3)'};
+const paint = s => ({...s, color:C[s.slot]});
+
+barChart(document.getElementById('ch-overflow'),
+  DATA.wordOverflow.map(d => ({label:d.lang, values:[d.pct],
+                               note:`${d.distinct.toLocaleString()} distinct words`})),
+  {series:['over 32 bytes'], colors:[C.s2], pct:true, labelBars:true,
+   fmt:v=>v.toFixed(2)+'%', max:40, mL:52, height:230});
+
+barChart(document.getElementById('ch-collide'),
+  DATA.collideByScript.map(d => ({label:d.script, values:[d.kron, d.spec],
+    note:`${d.n.toLocaleString()} words in this script`})),
+  {series:['Kronecker 8192','Spectral 8192'], colors:[C.s2, C.s1], pct:true,
+   labelBars:true, fmt:v=>v.toFixed(2)+'%', max:20, mL:92, height:250, barH:9});
+
+function renderPair(id, lgid, spec, opts){
+  if (!spec) return;
+  const s = spec.series.map(paint);
+  legend(document.getElementById(lgid), s);
+  lineChart(document.getElementById(id), s, opts);
+}
+const rtOpts = {x:DATA.roundtrip.buckets, ymax:1, xtitle:'token length (bytes)',
+                yfmt:v=>(v*100).toFixed(0)+'%', tfmt:v=>(v*100).toFixed(1)+'%'};
+renderPair('ch-rt1','lg-rt1', DATA.roundtrip.budget8192, rtOpts);
+renderPair('ch-rt2','lg-rt2', DATA.roundtrip.budget16384, rtOpts);
+
+if (DATA.noise){
+  renderPair('ch-noise','lg-noise', DATA.noise,
+    {x:DATA.noise.sigmas, ymax:1, xtitle:'noise sigma (× code RMS)',
+     yfmt:v=>(v*100).toFixed(0)+'%', tfmt:v=>(v*100).toFixed(2)+'%'});
+  document.getElementById('noisecap').textContent = DATA.noise.caption;
+}
+if (DATA.rank){
+  renderPair('ch-rank','lg-rank', DATA.rank,
+    {x:DATA.rank.dims, ymax:1, xtitle:'PCA dimensions kept (proxy for d_model)',
+     yfmt:v=>(v*100).toFixed(0)+'%', tfmt:v=>(v*100).toFixed(2)+'%', height:290});
+}
+
+function renderTrain(){
+  const pending = '<p style="color:var(--ink-3);font-family:ui-monospace,monospace;font-size:.8rem">training run still in progress</p>';
+  if (!DATA.training){
+    document.getElementById('ch-train1').innerHTML = pending;
+    document.getElementById('ch-train2').innerHTML = pending;
+    return;
+  }
+  const o = {x:DATA.training.steps, ymin:DATA.training.ymin, ymax:DATA.training.ymax,
+             xtitle:'optimizer step', yfmt:v=>v.toFixed(2), tfmt:v=>v.toFixed(4), height:290};
+  renderPair('ch-train1','lg-train1', DATA.training.withHead, o);
+  renderPair('ch-train2','lg-train2', DATA.training.headFree, o);
+  document.getElementById('trainnotes').innerHTML = DATA.training.notes || '';
+}
+
+/* -------------------------------------------------------------- tables -- */
+function table(mount, cols, rows){
+  mount.innerHTML = `<table><thead><tr>${
+    cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${
+    rows.map(r=>`<tr class="${r.hl?'hl':''}">${
+      r.cells.map((c,i)=>`<td class="${i?'num':''} ${c.cls||''}">${c.v??c}</td>`).join('')
+    }</tr>`).join('')}</tbody></table>`;
+}
+table(document.getElementById('paramtable'),
+  ['scheme','input params','head params','total','training memory','vs dense untied'],
+  DATA.paramTable);
+table(document.getElementById('armtable'),
+  ['arm','input path','head','input params','head params','total','val bits/byte'],
+  DATA.armTable);
+table(document.getElementById('milliontable'),
+  ['vocabulary','token-interface params','head params','sec / step','dense would cost','reduction'],
+  DATA.millionTable);
+document.getElementById('millionnote').textContent = DATA.millionNote;
+
+renderTrain();
+drawDial();
+addEventListener('resize', () => requestAnimationFrame(drawDial));
+</script>

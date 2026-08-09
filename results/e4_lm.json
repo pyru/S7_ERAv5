@@ -1,0 +1,780 @@
+{
+  "steps": 1000,
+  "vocab": 32000,
+  "seq": 128,
+  "batch": 8,
+  "arms": [
+    {
+      "arm": "A_dense",
+      "params": {
+        "input": 8192000,
+        "head": 8192000,
+        "trunk": 3150336,
+        "total": 19534336,
+        "token_interface": 16384000,
+        "token_interface_pct": 83.9
+      },
+      "final": {
+        "nats_per_token": 3.7190592288970947,
+        "bits_per_byte": 1.4747656812920207,
+        "token_acc": 0.24918619791666666
+      },
+      "curve": [
+        {
+          "nats_per_token": 10.37509822845459,
+          "bits_per_byte": 4.114169166350171,
+          "token_acc": 0.0,
+          "step": 0,
+          "train_loss": 10.416168212890625,
+          "elapsed": 3.2
+        },
+        {
+          "nats_per_token": 5.414251327514648,
+          "bits_per_byte": 2.146981684418155,
+          "token_acc": 0.10709635416666667,
+          "step": 125,
+          "train_loss": 5.1875224113464355,
+          "elapsed": 124.1
+        },
+        {
+          "nats_per_token": 4.294387896855672,
+          "bits_per_byte": 1.7029080481508516,
+          "token_acc": 0.10286458333333333,
+          "step": 250,
+          "train_loss": 5.311862468719482,
+          "elapsed": 237.0
+        },
+        {
+          "nats_per_token": 4.0542746384938555,
+          "bits_per_byte": 1.6076928952692386,
+          "token_acc": 0.19026692708333334,
+          "step": 375,
+          "train_loss": 4.00739860534668,
+          "elapsed": 350.9
+        },
+        {
+          "nats_per_token": 3.9016162157058716,
+          "bits_per_byte": 1.547157316502817,
+          "token_acc": 0.20947265625,
+          "step": 500,
+          "train_loss": 4.497681140899658,
+          "elapsed": 461.7
+        },
+        {
+          "nats_per_token": 3.8090887467066445,
+          "bits_per_byte": 1.5104662267786724,
+          "token_acc": 0.23502604166666666,
+          "step": 625,
+          "train_loss": 4.500649929046631,
+          "elapsed": 579.0
+        },
+        {
+          "nats_per_token": 3.745416522026062,
+          "bits_per_byte": 1.4852174727172094,
+          "token_acc": 0.24658203125,
+          "step": 750,
+          "train_loss": 3.7725701332092285,
+          "elapsed": 706.3
+        },
+        {
+          "nats_per_token": 3.7225910425186157,
+          "bits_per_byte": 1.4761661960999775,
+          "token_acc": 0.24886067708333334,
+          "step": 875,
+          "train_loss": 4.308156967163086,
+          "elapsed": 826.0
+        },
+        {
+          "nats_per_token": 3.7190592288970947,
+          "bits_per_byte": 1.4747656812920207,
+          "token_acc": 0.24918619791666666,
+          "step": 999,
+          "train_loss": 3.970947027206421,
+          "elapsed": 941.9
+        }
+      ],
+      "config": {
+        "input_path": "dense",
+        "head": "dense",
+        "vocab": 32000,
+        "d_model": 256
+      }
+    },
+    {
+      "arm": "B_kron8192_head",
+      "params": {
+        "input": 2097152,
+        "head": 8192000,
+        "trunk": 3150336,
+        "total": 13439488,
+        "token_interface": 10289152,
+        "token_interface_pct": 76.6
+      },
+      "final": {
+        "nats_per_token": 3.6118921438852944,
+        "bits_per_byte": 1.4322693591276714,
+        "token_acc": 0.2579752604166667
+      },
+      "curve": [
+        {
+          "nats_per_token": 10.465485413869223,
+          "bits_per_byte": 4.150011542304374,
+          "token_acc": 0.0,
+          "step": 0,
+          "train_loss": 10.450422286987305,
+          "elapsed": 4.0
+        },
+        {
+          "nats_per_token": 5.632861296335856,
+          "bits_per_byte": 2.233669865423931,
+          "token_acc": 0.125,
+          "step": 125,
+          "train_loss": 5.314239501953125,
+          "elapsed": 171.5
+        },
+        {
+          "nats_per_token": 4.1218695640563965,
+          "bits_per_byte": 1.6344971676170836,
+          "token_acc": 0.19498697916666666,
+          "step": 250,
+          "train_loss": 5.14117431640625,
+          "elapsed": 310.9
+        },
+        {
+          "nats_per_token": 3.8581151564915976,
+          "bits_per_byte": 1.5299072902782846,
+          "token_acc": 0.23649088541666666,
+          "step": 375,
+          "train_loss": 3.872532844543457,
+          "elapsed": 461.9
+        },
+        {
+          "nats_per_token": 3.744293769200643,
+          "bits_per_byte": 1.4847722533126255,
+          "token_acc": 0.2431640625,
+          "step": 500,
+          "train_loss": 4.368132591247559,
+          "elapsed": 570.9
+        },
+        {
+          "nats_per_token": 3.674065629641215,
+          "bits_per_byte": 1.4569237992523911,
+          "token_acc": 0.2537434895833333,
+          "step": 625,
+          "train_loss": 4.439148426055908,
+          "elapsed": 682.9
+        },
+        {
+          "nats_per_token": 3.6275360186894736,
+          "bits_per_byte": 1.4384728230317603,
+          "token_acc": 0.25634765625,
+          "step": 750,
+          "train_loss": 3.7356619834899902,
+          "elapsed": 807.3
+        },
+        {
+          "nats_per_token": 3.613423148790995,
+          "bits_per_byte": 1.4328764679027275,
+          "token_acc": 0.2578125,
+          "step": 875,
+          "train_loss": 4.223779201507568,
+          "elapsed": 945.5
+        },
+        {
+          "nats_per_token": 3.6118921438852944,
+          "bits_per_byte": 1.4322693591276714,
+          "token_acc": 0.2579752604166667,
+          "step": 999,
+          "train_loss": 3.8886568546295166,
+          "elapsed": 1077.0
+        }
+      ],
+      "config": {
+        "input_path": "kronecker",
+        "head": "dense",
+        "vocab": 32000,
+        "d_model": 256
+      }
+    },
+    {
+      "arm": "C_spec8192_head",
+      "params": {
+        "input": 2097152,
+        "head": 8192000,
+        "trunk": 3150336,
+        "total": 13439488,
+        "token_interface": 10289152,
+        "token_interface_pct": 76.6
+      },
+      "final": {
+        "nats_per_token": 3.6147937377293906,
+        "bits_per_byte": 1.4334199649015917,
+        "token_acc": 0.2547200520833333
+      },
+      "curve": [
+        {
+          "nats_per_token": 10.482122580210367,
+          "bits_per_byte": 4.156608888687896,
+          "token_acc": 0.0,
+          "step": 0,
+          "train_loss": 10.440814971923828,
+          "elapsed": 3.6
+        },
+        {
+          "nats_per_token": 5.48518443107605,
+          "bits_per_byte": 2.175109686786891,
+          "token_acc": 0.14176432291666666,
+          "step": 125,
+          "train_loss": 5.25163459777832,
+          "elapsed": 128.7
+        },
+        {
+          "nats_per_token": 4.086805105209351,
+          "bits_per_byte": 1.6205926134387316,
+          "token_acc": 0.20003255208333334,
+          "step": 250,
+          "train_loss": 5.123345375061035,
+          "elapsed": 252.7
+        },
+        {
+          "nats_per_token": 3.8463144302368164,
+          "bits_per_byte": 1.5252277987661171,
+          "token_acc": 0.22509765625,
+          "step": 375,
+          "train_loss": 3.8830063343048096,
+          "elapsed": 384.3
+        },
+        {
+          "nats_per_token": 3.7479788859685264,
+          "bits_per_byte": 1.486233559359757,
+          "token_acc": 0.23063151041666666,
+          "step": 500,
+          "train_loss": 4.375164031982422,
+          "elapsed": 500.4
+        },
+        {
+          "nats_per_token": 3.6792405446370444,
+          "bits_per_byte": 1.4589758738685072,
+          "token_acc": 0.2490234375,
+          "step": 625,
+          "train_loss": 4.4152021408081055,
+          "elapsed": 631.0
+        },
+        {
+          "nats_per_token": 3.63197390238444,
+          "bits_per_byte": 1.4402326332870121,
+          "token_acc": 0.2591145833333333,
+          "step": 750,
+          "train_loss": 3.73960280418396,
+          "elapsed": 757.2
+        },
+        {
+          "nats_per_token": 3.616399804751078,
+          "bits_per_byte": 1.4340568390086337,
+          "token_acc": 0.25439453125,
+          "step": 875,
+          "train_loss": 4.215832710266113,
+          "elapsed": 855.1
+        },
+        {
+          "nats_per_token": 3.6147937377293906,
+          "bits_per_byte": 1.4334199649015917,
+          "token_acc": 0.2547200520833333,
+          "step": 999,
+          "train_loss": 3.857546091079712,
+          "elapsed": 952.5
+        }
+      ],
+      "config": {
+        "input_path": "spectral",
+        "head": "dense",
+        "vocab": 32000,
+        "d_model": 256
+      }
+    },
+    {
+      "arm": "D_spec8192_headfree",
+      "params": {
+        "input": 2097152,
+        "head": 1,
+        "trunk": 3150336,
+        "total": 5247489,
+        "token_interface": 2097153,
+        "token_interface_pct": 40.0
+      },
+      "final": {
+        "nats_per_token": 5.275458097457886,
+        "bits_per_byte": 2.0919442462152458,
+        "token_acc": 0.17447916666666666,
+        "samples": [
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c28",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7f",
+            "gold": "\u0c46",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c1f",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c4d",
+            "gold": "\u0c4d",
+            "exact": true,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": " \u0c15",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7e",
+            "gold": "\u0c46",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c2b",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c4d",
+            "gold": "\u0c46",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": " /",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": " \ufffd",
+            "gold": " \u0c38",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c4d",
+            "gold": "\u0c3e",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c2e",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7e",
+            "gold": "\u0c3e",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c28",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c4d",
+            "gold": "\u0c4d",
+            "exact": true,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c2f",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c3e",
+            "gold": " \u0c38",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7e",
+            "gold": "\u0c47",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c35",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7e",
+            "gold": "\u0c3e",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": " \u0c15",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7e",
+            "gold": "\u0c47\u0c02",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c21",
+            "gold": "\u0c26",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c4d",
+            "gold": "\u0c4d",
+            "exact": true,
+            "in_vocab": true
+          }
+        ]
+      },
+      "curve": [
+        {
+          "nats_per_token": 20.234619458516438,
+          "bits_per_byte": 8.023890052504855,
+          "token_acc": 0.00016276041666666666,
+          "step": 0,
+          "train_loss": 4.686503887176514,
+          "elapsed": 2.8
+        },
+        {
+          "nats_per_token": 7.300097386042277,
+          "bits_per_byte": 2.8948001180979923,
+          "token_acc": 0.041829427083333336,
+          "step": 125,
+          "train_loss": 1.6774550676345825,
+          "elapsed": 67.0
+        },
+        {
+          "nats_per_token": 6.895907084147136,
+          "bits_per_byte": 2.7345214160772158,
+          "token_acc": 0.05908203125,
+          "step": 250,
+          "train_loss": 1.8088181018829346,
+          "elapsed": 142.8
+        },
+        {
+          "nats_per_token": 5.655892531077067,
+          "bits_per_byte": 2.242802732771191,
+          "token_acc": 0.10660807291666667,
+          "step": 375,
+          "train_loss": 1.2786873579025269,
+          "elapsed": 215.9
+        },
+        {
+          "nats_per_token": 5.481854438781738,
+          "bits_per_byte": 2.1737892027471477,
+          "token_acc": 0.16276041666666666,
+          "step": 500,
+          "train_loss": 1.4741696119308472,
+          "elapsed": 291.8
+        },
+        {
+          "nats_per_token": 5.391173601150513,
+          "bits_per_byte": 2.137830381158548,
+          "token_acc": 0.15608723958333334,
+          "step": 625,
+          "train_loss": 1.5088560581207275,
+          "elapsed": 1294.2
+        },
+        {
+          "nats_per_token": 5.3064353466033936,
+          "bits_per_byte": 2.10422804734045,
+          "token_acc": 0.1748046875,
+          "step": 750,
+          "train_loss": 1.1576536893844604,
+          "elapsed": 1395.4
+        },
+        {
+          "nats_per_token": 5.280239423116048,
+          "bits_per_byte": 2.0938402458640146,
+          "token_acc": 0.16471354166666666,
+          "step": 875,
+          "train_loss": 1.3592920303344727,
+          "elapsed": 1472.6
+        },
+        {
+          "nats_per_token": 5.275458097457886,
+          "bits_per_byte": 2.0919442462152458,
+          "token_acc": 0.17447916666666666,
+          "step": 999,
+          "train_loss": 1.260725498199463,
+          "elapsed": 1551.0
+        }
+      ],
+      "config": {
+        "input_path": "spectral",
+        "head": "none",
+        "vocab": 32000,
+        "d_model": 256
+      }
+    },
+    {
+      "arm": "E_spec2048_headfree",
+      "params": {
+        "input": 524288,
+        "head": 1,
+        "trunk": 3150336,
+        "total": 3674625,
+        "token_interface": 524289,
+        "token_interface_pct": 14.3
+      },
+      "final": {
+        "nats_per_token": 6.489924907684326,
+        "bits_per_byte": 2.57353215932877,
+        "token_acc": 0.09391276041666667,
+        "samples": [
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c28",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7f",
+            "gold": "\u0c46",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c1f",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7f",
+            "gold": "\u0c4d",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": " \u0c15",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7f",
+            "gold": "\u0c46",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c2b",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7f",
+            "gold": "\u0c46",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": " /",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": " \ufffd",
+            "gold": " \u0c38",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7e",
+            "gold": "\u0c3e",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c2e",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7e",
+            "gold": "\u0c3e",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c28",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7f",
+            "gold": "\u0c4d",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c2f",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c3f",
+            "gold": " \u0c38",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7e",
+            "gold": "\u0c47",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c35",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7f",
+            "gold": "\u0c3e",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": " \u0c15",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7e",
+            "gold": "\u0c47\u0c02",
+            "exact": false,
+            "in_vocab": false
+          },
+          {
+            "predicted": "\u0c30",
+            "gold": "\u0c26",
+            "exact": false,
+            "in_vocab": true
+          },
+          {
+            "predicted": "\u0c7f",
+            "gold": "\u0c4d",
+            "exact": false,
+            "in_vocab": false
+          }
+        ]
+      },
+      "curve": [
+        {
+          "nats_per_token": 22.34569199879964,
+          "bits_per_byte": 8.86102039690405,
+          "token_acc": 0.00016276041666666666,
+          "step": 0,
+          "train_loss": 5.000010013580322,
+          "elapsed": 1.4
+        },
+        {
+          "nats_per_token": 9.27753241856893,
+          "bits_per_byte": 3.6789374881876067,
+          "token_acc": 0.019205729166666668,
+          "step": 125,
+          "train_loss": 2.1473939418792725,
+          "elapsed": 58.3
+        },
+        {
+          "nats_per_token": 8.465735276540121,
+          "bits_per_byte": 3.3570252809464036,
+          "token_acc": 0.044921875,
+          "step": 250,
+          "train_loss": 2.276614189147949,
+          "elapsed": 116.1
+        },
+        {
+          "nats_per_token": 7.26864234606425,
+          "bits_per_byte": 2.8823268525197454,
+          "token_acc": 0.09342447916666667,
+          "step": 375,
+          "train_loss": 1.676559329032898,
+          "elapsed": 172.3
+        },
+        {
+          "nats_per_token": 6.832319974899292,
+          "bits_per_byte": 2.7093064139168184,
+          "token_acc": 0.09147135416666667,
+          "step": 500,
+          "train_loss": 1.814546823501587,
+          "elapsed": 230.5
+        },
+        {
+          "nats_per_token": 6.628941297531128,
+          "bits_per_byte": 2.628658089910944,
+          "token_acc": 0.10660807291666667,
+          "step": 625,
+          "train_loss": 1.8693759441375732,
+          "elapsed": 292.0
+        },
+        {
+          "nats_per_token": 6.547015428543091,
+          "bits_per_byte": 2.5961709869751264,
+          "token_acc": 0.09912109375,
+          "step": 750,
+          "train_loss": 1.4501924514770508,
+          "elapsed": 355.2
+        },
+        {
+          "nats_per_token": 6.502304236094157,
+          "bits_per_byte": 2.578441091285112,
+          "token_acc": 0.08512369791666667,
+          "step": 875,
+          "train_loss": 1.7180033922195435,
+          "elapsed": 423.6
+        },
+        {
+          "nats_per_token": 6.489924907684326,
+          "bits_per_byte": 2.57353215932877,
+          "token_acc": 0.09391276041666667,
+          "step": 999,
+          "train_loss": 1.615387201309204,
+          "elapsed": 528.9
+        }
+      ],
+      "config": {
+        "input_path": "spectral",
+        "head": "none",
+        "vocab": 32000,
+        "d_model": 256
+      }
+    }
+  ]
+}
