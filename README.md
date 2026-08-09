@@ -16,16 +16,32 @@ invertibility is what deletes the head. This is one construction that answers bo
 
 ## Submission
 
-**Interactive write-up (live encoder, fold visualiser, every chart):**
-https://claude.ai/code/artifact/8bcac6be-3c62-496d-8034-28ac53ffdb06
+### 📊 **[Read the interactive write-up →](https://pyru.github.io/S7_ERAv5/)**
 
-**Problems solved:** 4 (a real Fourier alternative) and 5 (running the codec backwards
-to delete the output head). Problem 3 — the fixed 32-byte window — falls out as a
-corollary and is measured alongside them.
+Live byte-level encoder you can type any word into, a visualiser for the fold that
+replaces truncation, and every chart below rendered from the measured JSON.
+Everything is self-contained — no external assets, works offline from `webapp/`.
 
-**How it is proved.** Five experiments on a *real* 16 MB multilingual Wikipedia corpus
-with *real* byte-level BPE tokenizers trained on it, plus a small transformer trained
-five ways with a matched trunk, matched data and matched seed:
+**Which problems.** **4** — a real Fourier alternative to Kronecker — and **5** —
+running the codec backwards so the final head can be deleted and the vocabulary can
+grow to 1M. They are answered by a *single* substitution, because a wave basis is what
+makes a code invertible and invertibility is what deletes the head. **Problem 3** (the
+fixed 32-byte window that crops long words) falls out as a corollary and is measured
+alongside them.
+
+**How it is proved.** At three levels, because a claim about an embedding needs all
+three:
+
+1. **Algebraically** — the position basis is an orthonormal real-DFT frame, so the
+   inverse is exact rather than approximate. Measured condition number **1.000**, and
+   `spectral/verify.py` re-checks it along with every other claim here.
+2. **By measurement on a real vocabulary** — 238 584 distinct words from a *real*
+   16 MB seven-language Wikipedia corpus, encoded by both codecs, collisions counted
+   per script.
+3. **By training a transformer** — five arms with a matched trunk, matched batches and
+   matched seed, so every adjacent pair isolates exactly one variable.
+
+Five experiments, each writing one JSON that the write-up is built from:
 
 | | question | file | headline |
 |---|---|---|---|
@@ -424,9 +440,12 @@ few hours on 8 cores.
 | `spectral/experiments/` | the four experiments, each writing one JSON |
 | `results/*.json` | every number quoted here, as produced |
 | `webapp/build.py` | regenerates the page **from** `results/*.json` |
+| `webapp/page.template.html` | the page source, with a `__DATA__` slot |
 | `webapp/index.html` | the built page — no hand-copied numbers anywhere in it |
+| `index.html` | redirect so the bare Pages URL lands on the write-up |
 
-Regenerate the page after any experiment: `python webapp/build.py`.
+Regenerate the page after any experiment: `python webapp/build.py`. The page is served
+by GitHub Pages from `main`, so a push publishes it.
 
 ---
 
