@@ -235,7 +235,9 @@ def training(e4):
             "<code>d_model</code> 256 only 62 % of the 8192-dimensional codes survive a "
             "linear squeeze to 256 dimensions. V5's <code>d_model</code> of 8 096 sits far "
             "above that knee — but that is an extrapolation from the rank measurement, "
-            "not something this run tested.</p>"
+            "not something this run tested. <strong>§4.4 tests it, and it does not "
+            "survive.</strong> The sentence is left standing so the correction is "
+            "legible rather than edited away.</p>"
             "<p><strong>A prediction of mine that failed.</strong> The rank curve says the "
             "2048-dimensional code survives a 256-dimensional bottleneck far better "
             "(94 % vs 62 %), so I expected arm E to beat arm D. It did not — E is worse "
@@ -252,6 +254,107 @@ def training(e4):
             "version. The comparison is tilted against them.</p>")
     return {"steps": steps, "ymin": max(0, lo - .15), "ymax": hi + .1,
             "withHead": with_head, "headFree": head_free, "notes": notes}, arm_rows
+
+
+# ---------------------------------------------------------------- width
+def width(e6):
+    """E6: does the head-free penalty close as d_model grows?"""
+    if not e6 or not e6.get("runs"):
+        return None
+    by = {(r["d_model"], r["head_free"]): r for r in e6["runs"]}
+    widths = sorted({d for d, _ in by if (d, False) in by and (d, True) in by})
+    if not widths:
+        return None
+
+    dense = [by[(d, False)]["final"]["bits_per_byte"] for d in widths]
+    fact = [by[(d, True)]["final"]["bits_per_byte"] for d in widths]
+    exact = [by[(d, True)]["final"].get("bits_per_byte_exact") for d in widths]
+    dense_x = [by[(d, False)]["final"].get("bits_per_byte_exact") for d in widths]
+    gaps = [(e - x) if (e is not None and x is not None) else None
+            for e, x in zip(exact, dense_x)]
+
+    rows = []
+    for i, d in enumerate(widths):
+        g = gaps[i]
+        rows.append({"hl": g is not None and g < 0.15, "cells": [
+            f"{d:,}",
+            f"{dense[i]:.4f}",
+            f"{fact[i]:.4f}",
+            f"{exact[i]:.4f}" if exact[i] is not None else "—",
+            {"v": f"{g:+.4f}" if g is not None else "—",
+             "cls": "mark-good" if (g is not None and g < 0.15) else ""},
+            {"v": f"{by[(d, True)]['params']['head']:,}", "cls": "mark-good"},
+            f"{by[(d, True)]['params']['total']:,}",
+        ]})
+
+    # Did the registered prediction hold?  A gap that moves by less than a few
+    # hundredths of a bit across a doubling of width is flat, not shrinking.
+    valid = [g for g in gaps if g is not None]
+    change = valid[-1] - valid[0] if len(valid) > 1 else float("nan")
+    shrank = len(valid) > 1 and change < -0.03
+    flat = len(valid) > 1 and abs(change) <= 0.03
+    rec = e6.get("e3b_recovery", {})
+    verdict = "held" if shrank else ("FAILED" if flat else "FAILED")
+    notes = (
+        "<h3>Did the prediction hold? No.</h3>"
+        f"<p>The prediction was that the head-free penalty shrinks with "
+        f"<code>d_model</code>, tracking the rank curve. On the exact, "
+        f"vocabulary-renormalised score the gap runs "
+        + " → ".join(f"<strong>{g:+.3f}</strong>" for g in valid)
+        + " across <code>d_model</code> " + " → ".join(str(w) for w in widths)
+        + ", while the rank curve over the same range runs "
+        + " → ".join(f"{rec.get(str(w), float('nan')):.2f}" for w in widths)
+        + f". Recovery improves by nearly thirty points and the gap moves by "
+          f"{change:+.3f} — the wrong way. The prediction <strong>{verdict}</strong>.</p>")
+    if flat:
+        notes += (
+            "<p><strong>What that rules out.</strong> The rank bottleneck is not the "
+            "operative cause of the head-free penalty. §4.3 attributed the gap to codes "
+            "not fitting through a narrow model; if that were right, doubling the width "
+            "should have closed most of it. It closed none of it. Both arms improved by "
+            "about the same amount, so the penalty behaves like a constant offset, not "
+            "a width artefact — and the extrapolation to V5's <code>d_model</code> of "
+            "8 096 that §4.3 leaned on is <em>not supported</em>. I am leaving that "
+            "sentence in §4.3 rather than editing it away, so the correction is legible.</p>"
+            f"<p><strong>What survives, and it is not nothing.</strong> Scoring the "
+            f"head-free model correctly cuts the penalty roughly in half: at "
+            f"<code>d_model</code> {widths[-1]} the gap falls from "
+            f"{fact[-1] - dense[-1]:+.3f} (factorised) to {valid[-1]:+.3f} (exact), "
+            f"because the factorised score was charging the model for probability it "
+            f"spent on strings that are not tokens. So the real cost of deleting the "
+            f"head is about <strong>{valid[-1]:.2f} bits per byte</strong> here, bought "
+            f"with a head of one parameter instead of "
+            f"{by[(widths[-1], False)]['params']['head']:,}.</p>"
+            "<p><strong>Limitation.</strong> Two widths, 600 steps, 4-layer models. This "
+            "shows the gap is flat from 256 to 512; it cannot show what happens at 4 096. "
+            "A third point at 768 was planned and abandoned — it ran twenty times slower "
+            "than the FLOP ratio predicts on this machine, which would have cost about "
+            "seven hours per arm.</p>")
+    else:
+        notes += (
+            f"<p>The gap closes from {valid[0]:+.3f} to {valid[-1]:+.3f}, so the rank "
+            "bottleneck was the operative cause and the extrapolation to a wider model "
+            "is now along a measured trend rather than from a single point.</p>")
+
+    # Scale to the data, not to zero: the finding is the CONSTANT vertical
+    # separation between the arms, and a zero-based axis squashes all three
+    # lines into the top third where that separation cannot be read.
+    allv = dense + fact + [e for e in exact if e is not None]
+    return {
+        "widths": [str(w) for w in widths],
+        "ymin": max(0.0, min(allv) - 0.25),
+        "ymax": max(allv) + 0.15,
+        "series": [
+            series("dense head (control)", "ref", dense),
+            series("head-free · exact", "s1", exact),
+            series("head-free · factorised (upper bound)", "s2", fact, True),
+        ],
+        "rows": rows,
+        "caption": ("Both arms retrained at every width. 'Exact' renormalises the "
+                    "byte-factorised likelihood over the vocabulary, which is the "
+                    "distribution the dense head is scored under."),
+        "notes": notes,
+    }
 
 
 # ---------------------------------------------------------------- million
@@ -284,6 +387,7 @@ def million(e5):
 def main():
     e1, e2, e4, e5 = (load("e1_collisions.json"), load("e2_invertibility.json"),
                       load("e4_lm.json"), load("e5_vocab_scaling.json"))
+    e6 = load("e6_width_sweep.json")
     if not e1 or not e2:
         raise SystemExit("need results/e1_collisions.json and e2_invertibility.json")
 
@@ -300,6 +404,7 @@ def main():
         "armTable": arm_rows or [{"cells": ["training run still in progress",
                                             "", "", "", "", "", ""]}],
         "training": train,
+        "width": width(e6),
         "millionTable": million_rows or [{"cells": ["not run yet", "", "", "", "", ""]}],
         "millionNote": million_note,
     }
@@ -311,7 +416,7 @@ def main():
     with open(out, "w", encoding="utf-8") as fh:
         fh.write(html)
     print(f"wrote {out}  ({len(html):,} bytes)")
-    for k in ("noise", "rank", "training"):
+    for k in ("noise", "rank", "training", "width"):
         if payload[k] is None:
             print(f"  note: '{k}' panel is pending — experiment has not finished")
 

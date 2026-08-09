@@ -1,0 +1,36 @@
+
+=== d256_dense ===
+  [d256_dense] step    0 bpb=4.1142 (2s)
+  [d256_dense] step  150 bpb=1.8921 (128s)
+  [d256_dense] step  300 bpb=1.6517 (278s)
+  [d256_dense] step  450 bpb=1.5956 (403s)
+  [d256_dense] step  599 bpb=1.5850 (548s)
+  [d256_dense] FINAL bpb=1.5850 exact=1.5988 params=19,534,336 head=8,192,000
+
+=== d256_headfree ===
+  [d256_headfree] step    0 bpb=8.0239 (2s)
+  [d256_headfree] step  150 bpb=2.8575 (91s)
+  [d256_headfree] step  300 bpb=2.4371 (175s)
+  [d256_headfree] step  450 bpb=2.2290 (264s)
+  [d256_headfree] step  599 bpb=2.2044 (357s)
+  [d256_headfree] FINAL bpb=2.2044 exact=1.8899 params=5,247,489 head=1
+
+=== d512_dense ===
+  [d512_dense] step    0 bpb=4.1000 (6s)
+  [d512_dense] step  150 bpb=1.6816 (316s)
+  [d512_dense] step  300 bpb=1.5652 (614s)
+  [d512_dense] step  450 bpb=1.4969 (907s)
+  [d512_dense] step  599 bpb=1.4796 (1198s)
+  [d512_dense] FINAL bpb=1.4796 exact=1.5007 params=45,360,128 head=16,384,000
+
+=== d512_headfree ===
+  [d512_headfree] step    0 bpb=10.5810 (4s)
+  [d512_headfree] step  150 bpb=2.5798 (243s)
+  [d512_headfree] step  300 bpb=2.2082 (557s)
+  [d512_headfree] step  450 bpb=2.1101 (817s)
+  [d512_headfree] step  599 bpb=2.0750 (1060s)
+  [d512_headfree] FINAL bpb=2.0750 exact=1.8001 params=16,786,433 head=1
+
+=== d768_dense ===
+  [d768_dense] step    0 bpb=4.0877 (13s)
+  [d768_dense] step  150 bpb=1.6500 (6138s)

@@ -557,7 +557,45 @@ loss       = cross_entropy over the target token's BYTES</code></pre>
     <div class="prose" id="trainnotes"></div>
 
     <div class="prose">
-      <h3>4.4 &nbsp;A vocabulary of one million</h3>
+      <h3>4.4 &nbsp;Can the head actually go? A prediction, then the test</h3>
+      <p>
+        §4.3 leaves the central claim unsettled: the head-free model works, but it costs
+        real quality at <code>d_model</code> 256. The rank curve says that is exactly
+        the width at which the code cannot fit through the model, which turns into a
+        prediction — recorded before the run, in the experiment's own docstring.
+      </p>
+      <div class="callout">
+        <span class="eyebrow">Prediction, registered before running</span>
+        <p>
+          The head-free penalty shrinks monotonically with <code>d_model</code>, and it
+          shrinks <em>in step with the rank curve</em> — which reads 0.62 at 256, 0.89
+          at 512 and 0.98 at 768. If the penalty is flat in <code>d_model</code>
+          instead, the rank bottleneck is not the cause and the head-free design is
+          simply worse.
+        </p>
+      </div>
+      <p>
+        Both arms are retrained at every width, and every arm is now scored two ways.
+        The <strong>factorised</strong> score is the one §4.3 used: an upper bound,
+        because a byte-factorised model leaks probability onto strings that are not
+        tokens. The <strong>exact</strong> score renormalises over the vocabulary, which
+        is the distribution the dense head is scored under, so the two finally become
+        the same measurement. That normaliser costs <em>O(|V|)</em> — but only for
+        scoring: training stays <em>O(code_dim)</em> and so does generation.
+      </p>
+    </div>
+
+    <figure class="panel"><div class="panel-body">
+      <h3 style="margin-bottom:4px">The head-free penalty against model width</h3>
+      <div class="legend" id="lg-width"></div>
+      <div id="ch-width"></div>
+      <figcaption id="widthcap"></figcaption>
+    </div></figure>
+    <div class="panel"><div class="panel-body"><div class="tablewrap" id="widthtable"></div></div></div>
+    <div class="prose" id="widthnotes"></div>
+
+    <div class="prose">
+      <h3>4.5 &nbsp;A vocabulary of one million</h3>
       <p>
         The code is a pure function of a token's bytes, so the <code>|V| &times; code_dim</code>
         table is a convenience, never a requirement. Above a threshold the implementation
@@ -1047,6 +1085,23 @@ if (DATA.rank){
      yfmt:v=>(v*100).toFixed(0)+'%', tfmt:v=>(v*100).toFixed(2)+'%', height:290});
 }
 
+function renderWidth(){
+  const box = document.getElementById('ch-width');
+  if (!DATA.width){
+    box.innerHTML = '<p style="color:var(--ink-3);font-family:ui-monospace,monospace;font-size:.8rem">width sweep still running</p>';
+    return;
+  }
+  const s = DATA.width.series.map(paint);
+  legend(document.getElementById('lg-width'), s);
+  lineChart(box, s, {x:DATA.width.widths, ymin:DATA.width.ymin, ymax:DATA.width.ymax,
+    xtitle:'d_model', yfmt:v=>v.toFixed(2), tfmt:v=>v.toFixed(4), height:300});
+  document.getElementById('widthcap').textContent = DATA.width.caption;
+  document.getElementById('widthnotes').innerHTML = DATA.width.notes || '';
+  table(document.getElementById('widthtable'),
+    ['d_model','dense bits/byte','head-free (factorised)','head-free (exact)',
+     'exact gap','head params','total params'], DATA.width.rows);
+}
+
 function renderTrain(){
   const pending = '<p style="color:var(--ink-3);font-family:ui-monospace,monospace;font-size:.8rem">training run still in progress</p>';
   if (!DATA.training){
@@ -1080,7 +1135,7 @@ table(document.getElementById('milliontable'),
   DATA.millionTable);
 document.getElementById('millionnote').textContent = DATA.millionNote;
 
-renderTrain();
+renderTrain(); renderWidth();
 drawDial();
 addEventListener('resize', () => requestAnimationFrame(drawDial));
 </script>

@@ -1,0 +1,180 @@
+{
+  "steps": 600,
+  "vocab": 32000,
+  "seq": 128,
+  "batch": 8,
+  "prediction": "head-free penalty shrinks monotonically with d_model, tracking the E3b recovery curve (0.62 / 0.89 / 0.98 at 256 / 512 / 768)",
+  "e3b_recovery": {
+    "256": 0.6211,
+    "512": 0.8912,
+    "768": 0.9767
+  },
+  "runs": [
+    {
+      "name": "d256_dense",
+      "d_model": 256,
+      "head_free": false,
+      "params": {
+        "input": 8192000,
+        "head": 8192000,
+        "trunk": 3150336,
+        "total": 19534336,
+        "token_interface": 16384000,
+        "token_interface_pct": 83.9
+      },
+      "final": {
+        "bits_per_byte": 1.5850338511480606,
+        "bits_per_byte_exact": 1.5987501512284066
+      },
+      "curve": [
+        {
+          "bits_per_byte": 4.114169166350171,
+          "bits_per_byte_exact": 4.109642120470732,
+          "step": 0
+        },
+        {
+          "bits_per_byte": 1.8921085997745861,
+          "bits_per_byte_exact": 1.897741405139226,
+          "step": 150
+        },
+        {
+          "bits_per_byte": 1.6517258270919213,
+          "bits_per_byte_exact": 1.6630389709342643,
+          "step": 300
+        },
+        {
+          "bits_per_byte": 1.5956160648352113,
+          "bits_per_byte_exact": 1.6098862926893103,
+          "step": 450
+        },
+        {
+          "bits_per_byte": 1.5850338511480606,
+          "bits_per_byte_exact": 1.5987501512284066,
+          "step": 599
+        }
+      ]
+    },
+    {
+      "name": "d256_headfree",
+      "d_model": 256,
+      "head_free": true,
+      "params": {
+        "input": 2097152,
+        "head": 1,
+        "trunk": 3150336,
+        "total": 5247489,
+        "token_interface": 2097153,
+        "token_interface_pct": 40.0
+      },
+      "final": {
+        "bits_per_byte": 2.2044059587395823,
+        "bits_per_byte_exact": 1.889933705783489
+      },
+      "curve": [
+        {
+          "bits_per_byte": 8.023890052504855,
+          "step": 0
+        },
+        {
+          "bits_per_byte": 2.857538901723816,
+          "step": 150
+        },
+        {
+          "bits_per_byte": 2.4370602078801245,
+          "step": 300
+        },
+        {
+          "bits_per_byte": 2.2290386066704766,
+          "step": 450
+        },
+        {
+          "bits_per_byte": 2.2044059587395823,
+          "step": 599
+        }
+      ]
+    },
+    {
+      "name": "d512_dense",
+      "d_model": 512,
+      "head_free": false,
+      "params": {
+        "input": 16384000,
+        "head": 16384000,
+        "trunk": 12592128,
+        "total": 45360128,
+        "token_interface": 32768000,
+        "token_interface_pct": 72.2
+      },
+      "final": {
+        "bits_per_byte": 1.479563966259901,
+        "bits_per_byte_exact": 1.5007022925033815
+      },
+      "curve": [
+        {
+          "bits_per_byte": 4.100003641590375,
+          "bits_per_byte_exact": 4.094272508594057,
+          "step": 0
+        },
+        {
+          "bits_per_byte": 1.681581384747897,
+          "bits_per_byte_exact": 1.6917070958227598,
+          "step": 150
+        },
+        {
+          "bits_per_byte": 1.5652351467061076,
+          "bits_per_byte_exact": 1.5819318895060508,
+          "step": 300
+        },
+        {
+          "bits_per_byte": 1.4968502025071453,
+          "bits_per_byte_exact": 1.5178015985302078,
+          "step": 450
+        },
+        {
+          "bits_per_byte": 1.479563966259901,
+          "bits_per_byte_exact": 1.5007022925033815,
+          "step": 599
+        }
+      ]
+    },
+    {
+      "name": "d512_headfree",
+      "d_model": 512,
+      "head_free": true,
+      "params": {
+        "input": 4194304,
+        "head": 1,
+        "trunk": 12592128,
+        "total": 16786433,
+        "token_interface": 4194305,
+        "token_interface_pct": 25.0
+      },
+      "final": {
+        "bits_per_byte": 2.075047811335214,
+        "bits_per_byte_exact": 1.8000819925753835
+      },
+      "curve": [
+        {
+          "bits_per_byte": 10.581031897897683,
+          "step": 0
+        },
+        {
+          "bits_per_byte": 2.579782500873228,
+          "step": 150
+        },
+        {
+          "bits_per_byte": 2.2081609916692857,
+          "step": 300
+        },
+        {
+          "bits_per_byte": 2.1100999011801442,
+          "step": 450
+        },
+        {
+          "bits_per_byte": 2.075047811335214,
+          "step": 599
+        }
+      ]
+    }
+  ]
+}

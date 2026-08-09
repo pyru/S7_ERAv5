@@ -50,6 +50,7 @@ Five experiments, each writing one JSON that the write-up is built from:
 | E3a | does the inverse survive noise? | `e2_invertibility.py` | null result — both codecs immune to σ = 1.0 |
 | E3b | how wide must `d_model` be? | `e2_invertibility.py` | the 2 048-dim code is lossless at `d_model` = 512 |
 | E4 | does a head-free model learn language? | `e4_lm.py` | works, head = **1 parameter**, and costs 0.6 bits/byte at `d_model` 256 |
+| E6 | does that cost go away with width? | `e6_width_sweep.py` | **no** — a registered prediction that failed; but correct scoring halves the cost to 0.29 |
 | E5 | is a 1M vocabulary really free? | `e5_vocab_scaling.py` | 524 289 params at V = 32 k, 131 k **and 1 M**, identical step time |
 
 **Start here:**
@@ -60,10 +61,11 @@ python spectral/verify.py      # re-checks every claim in this README, in second
 
 Then read §3 below, or open the link above and type a Tamil word into the dial.
 
-**Three results that went against me**, kept in rather than tidied away: §3.2 (a
-negative result on BPE vocabularies), §3.6 (spectral is *not* a better language model
-than Kronecker — the two are tied), and §3.6 again (a prediction I made from E3b that
-E4 falsified).
+**Four results that went against me**, kept in rather than tidied away: §3.2 (a negative
+result on BPE vocabularies), §3.6 (spectral is *not* a better language model than
+Kronecker — the two are tied), §3.6 again (a prediction from E3b that E4 falsified), and
+§3.7 (a prediction I registered in writing *before* running E6, which the run then
+falsified — the head-free penalty does not close with width).
 
 ---
 
@@ -295,9 +297,10 @@ Two results:
   code size — 62.1 % vs 48.5 % at `d` = 256 — because it concentrates the vocabulary's
   variance into fewer principal directions.
 - **The compact spectral code is lossless at `d_model` = 512.** So the design is not
-  merely "use waves", it is "use waves *and* a compact character basis". At V5's
-  `d_model` = 8 096 the bottleneck does not exist; the toy at 256 sits just below the
-  knee, which is a deliberately pessimistic proxy.
+  merely "use waves", it is "use waves *and* a compact character basis".
+
+Read this curve as a bound on what is *representable*, not a predictor of what is
+*learned* — §3.7 tests exactly that and finds the two come apart.
 
 ### 3.6 Does a head-free model actually learn language?
 
@@ -339,7 +342,53 @@ Three readings, including one that went against me:
   also lossy over 256 byte values where D's is exact. The rank curve bounds what is
   *possible*; it does not predict what is *learned*.
 
-### 3.7 A vocabulary of one million
+### 3.7 Can the head actually go? A registered prediction, and its failure
+
+§3.6 left the central claim of Problem 5 unsettled, and leaned on an extrapolation:
+the head-free arm cost 0.6 bits/byte at `d_model` = 256, and §3.5 said that is exactly
+the width at which the code cannot fit through the model. So I wrote the prediction into
+the experiment's docstring **before running it**:
+
+> The head-free penalty shrinks monotonically with `d_model`, tracking the E3b recovery
+> curve — 0.62 at 256, 0.89 at 512, 0.98 at 768. If the penalty is flat in `d_model`
+> instead, the rank bottleneck is not the cause and the head-free design is simply worse.
+
+Both arms retrained at each width, 600 steps, and scored two ways — the factorised score
+§3.6 used, and an **exact** score renormalised over the vocabulary (`spectral/scoring.py`),
+which is the distribution the dense head is scored under:
+
+| `d_model` | dense | head-free (factorised) | head-free (exact) | factorised gap | **exact gap** |
+|---:|---:|---:|---:|---:|---:|
+| 256 | 1.5850 | 2.2044 | 1.8899 | +0.6194 | **+0.2912** |
+| 512 | 1.4796 | 2.0750 | 1.8001 | +0.5955 | **+0.2994** |
+
+**The prediction failed.** Rank recovery improves from 0.62 to 0.89 over that doubling —
+nearly thirty points — and the gap moved by **+0.008**, the wrong way. Both arms improved
+by about the same amount.
+
+Two conclusions, one negative and one positive:
+
+- **The rank bottleneck is not the operative cause.** §3.6 attributed the head-free
+  penalty to codes not fitting through a narrow model, and said V5's `d_model` = 8 096
+  would remove it. That extrapolation is **not supported**. I have left the §3.6 sentence
+  as written rather than quietly editing it, so the correction is legible.
+- **Scoring the model correctly halves the penalty.** The factorised score was charging
+  the head-free model for probability it spent on byte strings that are not tokens. On
+  the exact score the real cost of deleting the head is about **0.29 bits/byte**, bought
+  with a head of **1** parameter instead of 16 384 000.
+
+A note on where the `O(|V|)` went: the exact normaliser sums over the vocabulary, which
+is the cost the design exists to avoid. That is not a contradiction, because it appears
+in only one of the three things a model does — training stays `O(code_dim)`, generation
+stays `O(branching)` over a trie, and only *exact likelihood evaluation* needs `O(|V|)`.
+Evaluation is not a deployment cost.
+
+**Limitation.** Two widths, 600 steps, 4-layer models. This shows the gap is flat from
+256 to 512; it cannot show what happens at 4 096. A third point at 768 was planned and
+abandoned: it ran ~20× slower than the FLOP ratio predicts on this machine (41 s/step vs
+2 s/step), which would have cost about seven hours per arm.
+
+### 3.8 A vocabulary of one million
 
 At V5's reference shape (`|V|` = 131 072, `d_model` = 8 096), the two token-facing
 matrices cost:
@@ -391,9 +440,11 @@ measured rather than projected.
   *distinctness* past 32 bytes, which is what the embedding needs; it does not
   preserve *resolvability*, which is what generation needs. For generation the channel
   count has to cover the longest token you intend to emit.
-- **The rank bottleneck is real** and is why §3.4 exists. At V5's reference shape
-  (`code_dim` 8 192, `d_model` 8 096) the ratio is ≈1.01 and the bottleneck
-  essentially vanishes; in the toy it is 8–32×, so the toy is a *pessimistic* proxy.
+- **The rank bottleneck is real but is not what costs the head-free arm its quality.**
+  §3.5 measures the bottleneck honestly; §3.7 then shows that removing most of it
+  (256 → 512, recovery 0.62 → 0.89) does *not* close the head-free gap. So the
+  bottleneck bounds what is representable without explaining what is learned, and the
+  ≈0.29 bits/byte cost of deleting the head is currently unexplained.
 
 ---
 
@@ -403,14 +454,16 @@ measured rather than projected.
 |---|---|
 | `pos_dim` chosen by collision count, starting from 32 | the count is **0** on BPE tokens and **6.99 %** on words. If the input path only ever sees BPE tokens, 32 is fine and this is a non-issue. If it must handle unseen strings — which is the reason to have a byte codec at all — 32 is not defensible |
 | Kronecker codec + trainable projection | swap the position basis for a DFT ladder. Same cost, same LM quality (1.4334 vs 1.4323 bpb), zero collisions instead of 16 673, and it inverts |
-| output head **untied** | unchanged for now. Tying via the codec is *exact* rather than heuristic, but the head-free arm cost 0.6 bits/byte at `d_model` 256. Worth a proxy run at `d_model` ≥ 2048 before adopting; not worth adopting on this evidence |
+| output head **untied** | unchanged. Tying via the codec is *exact* rather than heuristic, and the head is 1 parameter — but §3.7 tested the obvious defence of the quality gap and it failed: the cost is ≈0.29 bits/byte and flat from `d_model` 256 to 512. Adopt only where a 977× parameter saving on the token interface is worth ≈0.29 bits/byte, which at a 1M vocabulary it may well be |
 | `embedding_policy_id` in the ledger | add `ladder` and `pos_ch`. A geometric ladder is **silently singular** (condition number 3.3e17) and a checkpoint should be able to say which ladder produced it |
 
 The claim I would actually defend at this point: **the spectral codec is a free swap for
 Kronecker** — identical budget, identical LM quality, strictly fewer collisions, plus an
 analytic inverse you can choose to use later. The head-free decoder is a working
-mechanism with an enormous parameter win that has not yet been shown to be free at
-realistic width.
+mechanism with a 977× parameter win on the token interface and a **measured, unexplained
+price of ≈0.29 bits/byte** that does *not* fall away with width. Whether that trade is
+worth taking is a decision, not a result — but it is now a decision with a number
+attached instead of an extrapolation.
 
 ---
 
@@ -423,8 +476,13 @@ python spectral/vocab.py 32000                       # train + inspect a BPE voc
 python spectral/experiments/e1_collisions.py 8192 32000 131072   # -> results/e1_collisions.json
 python spectral/experiments/e2_invertibility.py                  # -> results/e2_invertibility.json
 STEPS=1000 python spectral/experiments/e4_lm.py                  # -> results/e4_lm.json
+STEPS=600 python spectral/experiments/e6_width_sweep.py          # -> results/e6_width_sweep.json
 python spectral/experiments/e5_vocab_scaling.py                  # -> results/e5_vocab_scaling.json
 ```
+
+`e2` and `e4`/`e6` take arguments — `e2_invertibility.py e3b` recomputes one section,
+`ARMS=D_spec8192_headfree e4_lm.py` retrains one arm, `WIDTHS=256,512` picks widths.
+Each merges into its existing JSON rather than overwriting it.
 
 Requires `torch`, `numpy`, `tokenizers`, `requests`. Runs on CPU; the full suite is a
 few hours on 8 cores.
@@ -437,7 +495,8 @@ few hours on 8 cores.
 | `spectral/data.py` | tokenized stream and the matched-batch sampler |
 | `spectral/verify.py` | self-check of every claim in this README (seconds, no corpus) |
 | `spectral/fetch_corpus.py` | the Wikipedia pull that produced `data/` |
-| `spectral/experiments/` | the four experiments, each writing one JSON |
+| `spectral/scoring.py` | exact vocabulary-renormalised likelihood (removes the upper bound) |
+| `spectral/experiments/` | the five experiments, each writing one JSON |
 | `results/*.json` | every number quoted here, as produced |
 | `webapp/build.py` | regenerates the page **from** `results/*.json` |
 | `webapp/page.template.html` | the page source, with a `__DATA__` slot |
@@ -459,11 +518,22 @@ what the paper would have to be built around rather than against — the spectra
 is a free swap, not a better language model, and the head-free decoder is not yet shown
 free at realistic width.
 
-The two experiments I would run next, in order:
+Both of the experiments this section originally listed have now been run, and they are
+§3.7 and `spectral/scoring.py`. One closed a caveat (exact renormalisation halved the
+head-free penalty); the other **falsified the explanation I had offered** for the
+remaining penalty. What is left is a real, measured, currently unexplained ≈0.29
+bits/byte, and that is the honest state of Problem 5.
 
-1. **The head-free arm at `d_model` ≥ 2 048.** §3.5 says the bottleneck disappears there
-   and §3.6 says that is exactly where the cost came from. This is the single
-   measurement that decides whether the head can actually go.
-2. **Trie-constrained renormalisation** over the vocabulary, to turn the byte-factorised
-   likelihood into an exact one and remove the upper-bound caveat from every
-   bits-per-byte number reported here.
+The three experiments I would run next, in order:
+
+1. **Why is the penalty flat?** The rank hypothesis is dead. The live candidates are
+   (a) the byte-factorised *training* objective — it never lets the model trade
+   probability between bytes of the same token, which a softmax over V does implicitly;
+   and (b) the tied projection, since arm E suggested decoder capacity matters more than
+   code recoverability. Untying `W_out` and retraining is cheap and separates them.
+2. **Longer training.** 600–1 000 steps is far from converged, and a constant offset
+   early in training is exactly what a slower-converging objective looks like. The gap
+   should be re-measured at 10× the steps before it is called structural.
+3. **The collision claim on a production-scale corpus.** §3.2 is the one place where a
+   bigger corpus, not a better idea, would settle the question — 16 MB only produced
+   ~85 k real BPE merges at V = 131 072.
